@@ -2,14 +2,16 @@ package br.com.alura.forumhub.controller;
 
 import br.com.alura.forumhub.dto.DadosCadastroTopico;
 import br.com.alura.forumhub.dto.DadosDetalhamentoTopico;
+import br.com.alura.forumhub.dto.topico.DadosListagemTopico;
 import br.com.alura.forumhub.service.TopicoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
@@ -32,6 +34,27 @@ public class TopicoController {
                 .toUri();
 
         return ResponseEntity.created(uri).body(topico);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<DadosListagemTopico>> listar(
+            @RequestParam(required = false) String curso,
+            @RequestParam(required = false) Integer ano,
+
+            @PageableDefault(
+                    size = 10,
+                    sort = "dataCriacao",
+                    direction = Sort.Direction.ASC
+            ) Pageable paginacao) {
+
+        var page = service.listar(curso, ano, paginacao);
+
+        return ResponseEntity.ok(page);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DadosDetalhamentoTopico> detalhar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.detalhar(id));
     }
 
 }
