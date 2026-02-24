@@ -2,6 +2,7 @@ package br.com.alura.forumhub.service;
 
 import br.com.alura.forumhub.dto.DadosCadastroTopico;
 import br.com.alura.forumhub.dto.DadosDetalhamentoTopico;
+import br.com.alura.forumhub.dto.topico.DadosAtualizacaoTopico;
 import br.com.alura.forumhub.dto.topico.DadosListagemTopico;
 import br.com.alura.forumhub.model.Curso;
 import br.com.alura.forumhub.model.Topico;
@@ -9,6 +10,7 @@ import br.com.alura.forumhub.model.Usuario;
 import br.com.alura.forumhub.repository.CursoRepository;
 import br.com.alura.forumhub.repository.TopicoRepository;
 import br.com.alura.forumhub.repository.UsuarioRepository;
+import br.com.alura.forumhub.service.validation.topico.atualizar.ValidationAtualizacaoTopico;
 import br.com.alura.forumhub.service.validation.topico.cadastrar.ValidationCadastroTopico;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,9 @@ import java.util.List;
 
         @Autowired
         private List<ValidationCadastroTopico> validationCadastroTopico;
+
+        @Autowired
+        private List<ValidationAtualizacaoTopico> validationAtualizacaoTopico;
 
     @Transactional
     public DadosDetalhamentoTopico cadastrar(DadosCadastroTopico dados) {
@@ -63,6 +68,26 @@ import java.util.List;
     public DadosDetalhamentoTopico detalhar(Long id) {
         Topico topico = topicoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Tópico não encontrado!"));
+
+        return new DadosDetalhamentoTopico(topico);
+    }
+
+    @Transactional
+    public DadosDetalhamentoTopico atualizar(Long id, DadosAtualizacaoTopico dados) {
+
+        Topico topico = topicoRepository.findById(id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Tópico não encontrado")
+                );
+
+        Curso curso = cursoRepository.findById(dados.idCurso())
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Curso não encontrado")
+                );
+
+        validationAtualizacaoTopico.forEach(v -> v.validar(id, dados));
+
+        topico.atualizarDados(dados, curso);
 
         return new DadosDetalhamentoTopico(topico);
     }

@@ -1,6 +1,7 @@
 package br.com.alura.forumhub.model;
 
 import br.com.alura.forumhub.dto.DadosCadastroTopico;
+import br.com.alura.forumhub.dto.topico.DadosAtualizacaoTopico;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -56,6 +57,13 @@ public class Topico {
 
     public void definirAutorECurso(Usuario autor, Curso curso) {
         this.autor = autor;
+        this.curso = curso;
+    }
+
+    public void atualizarDados(DadosAtualizacaoTopico dados, Curso curso) {
+
+        this.titulo = dados.titulo();
+        this.mensagem = dados.mensagem();
         this.curso = curso;
     }
 }
