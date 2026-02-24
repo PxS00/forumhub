@@ -8,9 +8,12 @@ import br.com.alura.forumhub.model.Usuario;
 import br.com.alura.forumhub.repository.CursoRepository;
 import br.com.alura.forumhub.repository.TopicoRepository;
 import br.com.alura.forumhub.repository.UsuarioRepository;
+import br.com.alura.forumhub.service.validation.topico.cadastrar.ValidationCadastroTopico;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
     public class TopicoService {
@@ -24,21 +27,16 @@ import org.springframework.transaction.annotation.Transactional;
         @Autowired
         private CursoRepository cursoRepository;
 
+        @Autowired
+        private List<ValidationCadastroTopico> validationCadastroTopico;
+
     @Transactional
     public DadosDetalhamentoTopico cadastrar(DadosCadastroTopico dados) {
 
-        Usuario autor = usuarioRepository.findById(dados.idAutor())
-                .orElseThrow(() -> new EntityNotFoundException("Autor não encontrado"));
+        validationCadastroTopico.forEach(v -> v.validar(dados));
 
-        Curso curso = cursoRepository.findById(dados.idCurso())
-                .orElseThrow(() -> new EntityNotFoundException("Curso não encontrado"));
-
-        if (topicoRepository.existsByTituloAndMensagem(
-                dados.titulo(),
-                dados.mensagem())) {
-
-            throw new RuntimeException("Tópico duplicado");
-        }
+        Usuario autor = usuarioRepository.getReferenceById(dados.idAutor());
+        Curso curso = cursoRepository.getReferenceById(dados.idCurso());
 
         Topico topico = new Topico(dados);
         topico.definirAutorECurso(autor, curso);
