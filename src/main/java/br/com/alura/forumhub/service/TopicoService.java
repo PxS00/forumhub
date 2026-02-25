@@ -39,6 +39,13 @@ import java.util.List;
         @Autowired
         private List<ValidationAtualizacaoTopico> validationAtualizacaoTopico;
 
+    private Topico topicoExiste(Long id){
+        return topicoRepository.findById(id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Tópico não encontrado")
+                );
+    }
+
     @Transactional
     public DadosDetalhamentoTopico cadastrar(DadosCadastroTopico dados) {
 
@@ -55,10 +62,7 @@ import java.util.List;
         return new DadosDetalhamentoTopico(topico);
     }
 
-    public Page<DadosListagemTopico> listar(
-            String curso,
-            Integer ano,
-            Pageable paginacao) {
+    public Page<DadosListagemTopico> listar(String curso, Integer ano, Pageable paginacao) {
 
         return topicoRepository
                 .buscarPorCursoEAno(curso, ano, paginacao)
@@ -66,8 +70,7 @@ import java.util.List;
     }
 
     public DadosDetalhamentoTopico detalhar(Long id) {
-        Topico topico = topicoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Tópico não encontrado!"));
+        Topico topico = topicoExiste(id);
 
         return new DadosDetalhamentoTopico(topico);
     }
@@ -75,10 +78,7 @@ import java.util.List;
     @Transactional
     public DadosDetalhamentoTopico atualizar(Long id, DadosAtualizacaoTopico dados) {
 
-        Topico topico = topicoRepository.findById(id)
-                .orElseThrow(() ->
-                        new EntityNotFoundException("Tópico não encontrado")
-                );
+        Topico topico = topicoExiste(id);
 
         Curso curso = cursoRepository.findById(dados.idCurso())
                 .orElseThrow(() ->
@@ -90,5 +90,13 @@ import java.util.List;
         topico.atualizarDados(dados, curso);
 
         return new DadosDetalhamentoTopico(topico);
+    }
+
+    @Transactional
+    public void deletar(Long id) {
+        Topico topico = topicoExiste(id);
+        topicoRepository.deleteById(id);
+
+
     }
 }
