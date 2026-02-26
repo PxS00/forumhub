@@ -1,7 +1,7 @@
 package br.com.alura.forumhub.service;
 
-import br.com.alura.forumhub.dto.DadosCadastroTopico;
-import br.com.alura.forumhub.dto.DadosDetalhamentoTopico;
+import br.com.alura.forumhub.dto.topico.DadosCadastroTopico;
+import br.com.alura.forumhub.dto.topico.DadosDetalhamentoTopico;
 import br.com.alura.forumhub.dto.topico.DadosAtualizacaoTopico;
 import br.com.alura.forumhub.dto.topico.DadosListagemTopico;
 import br.com.alura.forumhub.model.Curso;

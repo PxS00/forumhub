@@ -1,6 +1,6 @@
 package br.com.alura.forumhub.model;
 
-import br.com.alura.forumhub.dto.DadosCadastroTopico;
+import br.com.alura.forumhub.dto.topico.DadosCadastroTopico;
 import br.com.alura.forumhub.dto.topico.DadosAtualizacaoTopico;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,10 +26,10 @@ public class Topico {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String titulo;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String mensagem;
 
     private LocalDateTime dataCriacao;
