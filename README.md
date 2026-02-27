@@ -1,5 +1,9 @@
 # 📚 ForumHub API
 
+<p align="center">
+  <img src="assets/Badge-Spring.png" width="220"/>
+</p>
+
 ![Java](https://img.shields.io/badge/Java-17-blue)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5.11-brightgreen)
 ![Spring Security](https://img.shields.io/badge/Spring_Security-6.x-green)
