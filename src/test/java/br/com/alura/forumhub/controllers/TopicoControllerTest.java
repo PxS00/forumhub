@@ -1,4 +1,4 @@
-package br.com.alura.forumhub.controller;
+package br.com.alura.forumhub.controllers;
 
 import br.com.alura.forumhub.dto.topico.DadosCadastroTopico;
 import br.com.alura.forumhub.dto.topico.DadosDetalhamentoTopico;
