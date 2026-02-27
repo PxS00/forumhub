@@ -5,7 +5,7 @@ INSERT INTO usuarios (nome, email, senha)
 VALUES (
            'Admin',
            'admin@email.com',
-           '$2a$10$Dow1z3H1tR6G6x2fXH5QReSgV7t9pZ7C4lE9J1Zr9HkC1l5xY0QyW'
+           '$2a$12$QGEa63zWsEcEjk0NCJ7pzuH039OEViHgT0hWAaK8b3nKzFr8VkDUS'
        );
 
 INSERT INTO usuarios_perfis (usuario_id, perfil_id)

@@ -43,5 +43,45 @@ class ValidarTopicoDuplicadoTest {
 
         assertThatCode(() -> validador.validar(dados)).doesNotThrowAnyException();
     }
+
+    @Test
+    @DisplayName("Não deve lançar exceção quando apenas o título é igual")
+    void validar_apenasTituloIgual_naoDeveLancarExcecao() {
+
+        var dados = new DadosCadastroTopico(
+                "Título existente",
+                "Mensagem diferente",
+                1L,
+                1L
+        );
+
+        given(repository.existsByTituloAndMensagem(
+                "Título existente",
+                "Mensagem diferente"
+        )).willReturn(false);
+
+        assertThatCode(() -> validador.validar(dados))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("Não deve lançar exceção quando apenas a mensagem é igual")
+    void validar_apenasMensagemIgual_naoDeveLancarExcecao() {
+
+        var dados = new DadosCadastroTopico(
+                "Título diferente",
+                "Mensagem existente",
+                1L,
+                1L
+        );
+
+        given(repository.existsByTituloAndMensagem(
+                "Título diferente",
+                "Mensagem existente"
+        )).willReturn(false);
+
+        assertThatCode(() -> validador.validar(dados))
+                .doesNotThrowAnyException();
+    }
 }
 
