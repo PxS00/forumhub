@@ -20,12 +20,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class UsuarioController {
 
     @Autowired
-    UsuarioService usuarioService;
+    UsuarioService service;
 
     @PostMapping
     public ResponseEntity<DadosDetalhamentoUsuario> cadastro(@RequestBody @Valid DadosCadastroUsuario dados, UriComponentsBuilder uriBuilder) {
 
-        DadosDetalhamentoUsuario usuario = usuarioService.cadastrar(dados);
+        DadosDetalhamentoUsuario usuario = service.cadastrar(dados);
 
         var uri = uriBuilder
                 .path("/usuario/{id}")
@@ -42,19 +42,25 @@ public class UsuarioController {
                     direction = Sort.Direction.ASC
             ) Pageable paginacao) {
 
-        var page = usuarioService.listar(paginacao);
+        var page = service.listar(paginacao);
 
         return ResponseEntity.ok(page);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<DadosDetalhamentoUsuario> detalhamento(@PathVariable Long id) {
-        return ResponseEntity.ok(usuarioService.detalhar(id));
+        return ResponseEntity.ok(service.detalhar(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<DadosDetalhamentoUsuario> atualizacao(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoUsuario dados) {
-        return ResponseEntity.ok(usuarioService.atualizar(id, dados));
+        return ResponseEntity.ok(service.atualizar(id, dados));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> remocao(@PathVariable Long id) {
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 
 
