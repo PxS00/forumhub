@@ -74,4 +74,22 @@ public class Usuario implements UserDetails {
     @Override public boolean isCredentialsNonExpired() { return true; }
 
     @Override public boolean isEnabled() { return true; }
+
+    public void alterarNome(String nome) {
+        if (nome != null) {
+            this.nome = nome;
+        }
+    }
+
+    public void alterarEmail(String email) {
+        if (email != null) {
+            this.email = email;
+        }
+    }
+
+    public void alterarSenha(String senhaHash) {
+        if (senhaHash != null) {
+            this.senha = senhaHash;
+        }
+    }
 }
