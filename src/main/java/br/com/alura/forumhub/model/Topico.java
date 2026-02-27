@@ -11,12 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(
-        name = "topicos",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"titulo", "mensagem"})
-        }
-)
+@Table(name = "topicos")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,12 +21,13 @@ public class Topico {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String titulo;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String mensagem;
 
+    @Column(name = "data_criacao")
     private LocalDateTime dataCriacao;
 
     @Enumerated(EnumType.STRING)
