@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CursoRepository extends JpaRepository<Curso, Long> {
     boolean existsByNome(@NotBlank String nome);
+
+    boolean existsByNomeAndIdNot(@NotBlank String nome, Long id);
 }

@@ -6,7 +6,8 @@ import br.com.alura.forumhub.dto.curso.DadosDetalhamentoCurso;
 import br.com.alura.forumhub.dto.curso.DadosListagemCurso;
 import br.com.alura.forumhub.model.Curso;
 import br.com.alura.forumhub.repository.CursoRepository;
-import br.com.alura.forumhub.service.validation.curso.cadastrar.ValidadorCadastroCurso;
+import br.com.alura.forumhub.service.validation.curso.atualizar.ValidationAtualizacaoCurso;
+import br.com.alura.forumhub.service.validation.curso.cadastrar.ValidationCadastroCurso;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,10 @@ public class CursoService {
     private CursoRepository cursoRepository;
 
     @Autowired
-    private List<ValidadorCadastroCurso> validadores;
+    private List<ValidationCadastroCurso> validationCadastroCursos;
+
+    @Autowired
+    private List<ValidationAtualizacaoCurso> validationAtualizacaoCursos;
 
     private Curso cursoExiste(Long id) {
         return cursoRepository.findById(id)
@@ -36,7 +40,7 @@ public class CursoService {
     @Transactional
     public DadosDetalhamentoCurso cadastrar(DadosCadastroCurso dados) {
 
-        validadores.forEach(v -> v.validar(dados));
+        validationCadastroCursos.forEach(v -> v.validar(dados));
 
         Curso curso = new Curso(dados);
         cursoRepository.save(curso);
@@ -60,6 +64,8 @@ public class CursoService {
 
     @Transactional
     public DadosDetalhamentoCurso atualizar(Long id, @Valid DadosAtualizacaoCurso dados) {
+
+        validationAtualizacaoCursos.forEach(v -> v.validar(id, dados));
 
         Curso curso = cursoExiste(id);
 
