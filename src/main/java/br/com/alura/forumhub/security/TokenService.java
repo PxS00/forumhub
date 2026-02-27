@@ -10,13 +10,18 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Date;
 
 @Service
 public class TokenService {
 
     private static final String ISSUER = "API ForumHub";
+
     @Value("${api.security.token.secret}")
     private String secret;
+
+    @Value("${api.security.token.expiration}")
+    private Long expiration;
 
     public String generateToken(Usuario usuario) {
         try {
@@ -25,7 +30,9 @@ public class TokenService {
                     .withIssuer(ISSUER)
                     .withSubject(usuario.getUsername())
                     .withClaim("id", usuario.getId())
-                    .withExpiresAt(dataExpiration())
+                    .withExpiresAt(
+                            new Date(System.currentTimeMillis() + expiration)
+                    )
                     .sign(algorithm);
         }catch (JWTCreationException e){
             throw new RuntimeException("Error generating JWT token", e);
@@ -45,9 +52,4 @@ public class TokenService {
             throw new RuntimeException("Invalid or expired JWT token", e);
         }
     }
-
-    private Instant dataExpiration() {
-            return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
-        }
-
 }
