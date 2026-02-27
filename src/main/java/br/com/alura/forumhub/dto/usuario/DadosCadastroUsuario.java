@@ -20,7 +20,7 @@ public record DadosCadastroUsuario(
         String email,
 
         @NotBlank(message = "Senha é obrigatória")
-        @Size(min = 8, max = 100, message = "Senha deve ter no mínimo 8 caracteres")
+        @Size(min = 8, max = 64, message = "Senha deve ter entre 8 e 64 caracteres")
         @Pattern(
                 regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&.#_\\-])[A-Za-z\\d@$!%*?&.#_\\-]+$",
                 message = "Senha deve conter letra maiúscula, minúscula, número e símbolo"
