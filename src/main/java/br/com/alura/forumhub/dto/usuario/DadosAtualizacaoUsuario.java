@@ -1,11 +1,13 @@
 package br.com.alura.forumhub.dto.usuario;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record DadosAtualizacaoUsuario(
 
+        @NotBlank
         @Size(min = 3, max = 100,
                 message = "Nome deve ter entre 3 e 100 caracteres")
         @Pattern(
@@ -14,9 +16,11 @@ public record DadosAtualizacaoUsuario(
         )
         String nome,
 
+        @NotBlank
         @Email(message = "E-mail inválido")
         String email,
 
+        @NotBlank
         @Size(min = 8, max = 64,
                 message = "Senha deve ter entre 8 e 64 caracteres")
         @Pattern(

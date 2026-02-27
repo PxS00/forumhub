@@ -89,14 +89,9 @@ public class UsuarioService {
         validationAtualizacaoUsuarios
                 .forEach(v -> v.validar(id, dados));
 
-        usuario.alterarNome(dados.nome());
-        usuario.alterarEmail(dados.email());
+        String senhaHash = passwordEncoder.encode(dados.senha());
 
-        if (dados.senha() != null) {
-            usuario.alterarSenha(
-                    passwordEncoder.encode(dados.senha())
-            );
-        }
+        usuario.atualizarDados(dados, senhaHash);
 
         return new DadosDetalhamentoUsuario(usuario);
     }

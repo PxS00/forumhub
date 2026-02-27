@@ -1,8 +1,8 @@
 package br.com.alura.forumhub.service;
 
+import br.com.alura.forumhub.dto.topico.DadosAtualizacaoTopico;
 import br.com.alura.forumhub.dto.topico.DadosCadastroTopico;
 import br.com.alura.forumhub.dto.topico.DadosDetalhamentoTopico;
-import br.com.alura.forumhub.dto.topico.DadosAtualizacaoTopico;
 import br.com.alura.forumhub.dto.topico.DadosListagemTopico;
 import br.com.alura.forumhub.model.Curso;
 import br.com.alura.forumhub.model.Topico;
@@ -96,7 +96,5 @@ import java.util.List;
     public void deletar(Long id) {
         Topico topico = topicoExiste(id);
         topicoRepository.deleteById(id);
-
-
     }
 }

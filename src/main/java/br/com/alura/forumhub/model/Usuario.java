@@ -1,5 +1,6 @@
 package br.com.alura.forumhub.model;
 
+import br.com.alura.forumhub.dto.usuario.DadosAtualizacaoUsuario;
 import br.com.alura.forumhub.dto.usuario.DadosCadastroUsuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -75,21 +76,10 @@ public class Usuario implements UserDetails {
 
     @Override public boolean isEnabled() { return true; }
 
-    public void alterarNome(String nome) {
-        if (nome != null) {
-            this.nome = nome;
-        }
-    }
+    public void atualizarDados(DadosAtualizacaoUsuario dados, String senhaHash) {
 
-    public void alterarEmail(String email) {
-        if (email != null) {
-            this.email = email;
-        }
-    }
-
-    public void alterarSenha(String senhaHash) {
-        if (senhaHash != null) {
-            this.senha = senhaHash;
-        }
+        this.nome = dados.nome();
+        this.email = dados.email();
+        this.senha = senhaHash;
     }
 }
