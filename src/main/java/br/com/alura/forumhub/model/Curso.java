@@ -1,5 +1,6 @@
 package br.com.alura.forumhub.model;
 
+import br.com.alura.forumhub.dto.curso.DadosCadastroCurso;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,4 +20,8 @@ public class Curso {
     private String nome;
     private String categoria;
 
+    public Curso(DadosCadastroCurso dados) {
+        this.nome = dados.nome();
+        this.categoria = dados.categoria();
+    }
 }
