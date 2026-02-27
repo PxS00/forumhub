@@ -95,6 +95,6 @@ import java.util.List;
     @Transactional
     public void deletar(Long id) {
         Topico topico = topicoExiste(id);
-        topicoRepository.deleteById(id);
+        topicoRepository.delete(topico);
     }
 }
