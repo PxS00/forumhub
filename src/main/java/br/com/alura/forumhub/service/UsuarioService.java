@@ -95,4 +95,10 @@ public class UsuarioService {
 
         return new DadosDetalhamentoUsuario(usuario);
     }
+
+    @Transactional
+    public void deletar(Long id) {
+        Usuario usuario = usuarioExiste(id);
+        usuarioRepository.delete(usuario);
+    }
 }

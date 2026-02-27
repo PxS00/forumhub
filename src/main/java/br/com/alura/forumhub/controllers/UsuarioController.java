@@ -36,8 +36,7 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<DadosListagemUsuario>> listar(
-            @PageableDefault(
+    public ResponseEntity<Page<DadosListagemUsuario>> listar(@PageableDefault(
                     size = 10,
                     sort = "nome",
                     direction = Sort.Direction.ASC
