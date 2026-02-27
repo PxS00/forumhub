@@ -23,7 +23,7 @@ public class UsuarioController {
     UsuarioService usuarioService;
 
     @PostMapping
-    public ResponseEntity<DadosDetalhamentoUsuario> cadastrarUsuario(@RequestBody @Valid DadosCadastroUsuario dados, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<DadosDetalhamentoUsuario> cadastro(@RequestBody @Valid DadosCadastroUsuario dados, UriComponentsBuilder uriBuilder) {
 
         DadosDetalhamentoUsuario usuario = usuarioService.cadastrar(dados);
 
@@ -36,7 +36,7 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<DadosListagemUsuario>> listar(@PageableDefault(
+    public ResponseEntity<Page<DadosListagemUsuario>> listagem(@PageableDefault(
                     size = 10,
                     sort = "nome",
                     direction = Sort.Direction.ASC
@@ -48,12 +48,12 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DadosDetalhamentoUsuario> detalhar(@PathVariable Long id) {
+    public ResponseEntity<DadosDetalhamentoUsuario> detalhamento(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.detalhar(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DadosDetalhamentoUsuario> atualizar(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoUsuario dados) {
+    public ResponseEntity<DadosDetalhamentoUsuario> atualizacao(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoUsuario dados) {
         return ResponseEntity.ok(usuarioService.atualizar(id, dados));
     }
 

@@ -1,8 +1,8 @@
 package br.com.alura.forumhub.controllers;
 
+import br.com.alura.forumhub.dto.topico.DadosAtualizacaoTopico;
 import br.com.alura.forumhub.dto.topico.DadosCadastroTopico;
 import br.com.alura.forumhub.dto.topico.DadosDetalhamentoTopico;
-import br.com.alura.forumhub.dto.topico.DadosAtualizacaoTopico;
 import br.com.alura.forumhub.dto.topico.DadosListagemTopico;
 import br.com.alura.forumhub.service.TopicoService;
 import jakarta.validation.Valid;
@@ -23,7 +23,7 @@ public class TopicoController {
     private TopicoService service;
 
     @PostMapping
-    public ResponseEntity<DadosDetalhamentoTopico> cadastrar(@RequestBody @Valid DadosCadastroTopico dados, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<DadosDetalhamentoTopico> cadastro(@RequestBody @Valid DadosCadastroTopico dados, UriComponentsBuilder uriBuilder) {
 
     // Constrói a URI do recurso recém-criado (ex.: /topicos/{id}) e retorna HTTP 201 Created com o header Location apontando para onde o novo recurso pode ser acessado
 
@@ -38,7 +38,7 @@ public class TopicoController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<DadosListagemTopico>> listar(
+    public ResponseEntity<Page<DadosListagemTopico>> listagem(
             @RequestParam(required = false) String curso,
             @RequestParam(required = false) Integer ano,
 
@@ -54,17 +54,17 @@ public class TopicoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DadosDetalhamentoTopico> detalhar(@PathVariable Long id) {
+    public ResponseEntity<DadosDetalhamentoTopico> detalhamento(@PathVariable Long id) {
         return ResponseEntity.ok(service.detalhar(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DadosDetalhamentoTopico> atualizar(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoTopico dados) {
+    public ResponseEntity<DadosDetalhamentoTopico> atualizacao(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoTopico dados) {
         return ResponseEntity.ok(service.atualizar(id, dados));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id) {
+    public ResponseEntity<Void> remocao(@PathVariable Long id) {
         service.deletar(id);
         return ResponseEntity.noContent().build();
     }

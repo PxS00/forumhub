@@ -23,7 +23,7 @@ public class CursoController {
     private CursoService service;
 
     @PostMapping
-    public ResponseEntity<DadosDetalhamentoCurso> cadastrar(@RequestBody @Valid DadosCadastroCurso dados, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<DadosDetalhamentoCurso> cadastro(@RequestBody @Valid DadosCadastroCurso dados, UriComponentsBuilder uriBuilder) {
 
         DadosDetalhamentoCurso curso = service.cadastrar(dados);
 
@@ -37,7 +37,7 @@ public class CursoController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<DadosListagemCurso>> listar(@PageableDefault(
+    public ResponseEntity<Page<DadosListagemCurso>> listagem(@PageableDefault(
             size = 10,
             sort = "nome",
             direction = Sort.Direction.ASC
@@ -49,17 +49,17 @@ public class CursoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DadosDetalhamentoCurso> detalhar(@PathVariable Long id) {
+    public ResponseEntity<DadosDetalhamentoCurso> detalhamento(@PathVariable Long id) {
         return ResponseEntity.ok(service.detalhar(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DadosDetalhamentoCurso> atualizar(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoCurso dados) {
+    public ResponseEntity<DadosDetalhamentoCurso> atualizacao(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoCurso dados) {
         return ResponseEntity.ok(service.atualizar(id, dados));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable Long id) {
+    public ResponseEntity<Void> remocao(@PathVariable Long id) {
         service.deletar(id);
         return ResponseEntity.noContent().build();
     }
