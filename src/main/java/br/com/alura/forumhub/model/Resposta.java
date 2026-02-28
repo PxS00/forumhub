@@ -1,5 +1,7 @@
 package br.com.alura.forumhub.model;
 
+import br.com.alura.forumhub.dto.resposta.DadosAtualizacaoResposta;
+import br.com.alura.forumhub.dto.resposta.DadosCadastroResposta;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,4 +31,20 @@ public class Resposta {
 
     @ManyToOne
     private Usuario autor;
+
+    public Resposta(DadosCadastroResposta dados) {
+        this.mensagem = dados.mensagem();
+        this.dataCriacao = LocalDateTime.now();
+        this.solucao = false;
+    }
+
+    public void definirTopicoEAutor(Topico topico, Usuario autor) {
+        this.topico = topico;
+        this.autor = autor;
+    }
+
+    public void atualizarDados(DadosAtualizacaoResposta dados) {
+
+        this.mensagem = dados.mensagem();
+    }
 }
