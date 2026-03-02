@@ -1,4 +1,4 @@
-package br.com.alura.forumhub.service.validation.resposta.exclusao;
+package br.com.alura.forumhub.service.validation.resposta.excluir;
 
 import br.com.alura.forumhub.model.Resposta;
 

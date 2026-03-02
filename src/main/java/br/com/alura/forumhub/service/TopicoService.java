@@ -11,7 +11,8 @@ import br.com.alura.forumhub.repository.CursoRepository;
 import br.com.alura.forumhub.repository.TopicoRepository;
 import br.com.alura.forumhub.repository.UsuarioRepository;
 import br.com.alura.forumhub.service.validation.topico.atualizar.ValidationAtualizacaoTopico;
-import br.com.alura.forumhub.service.validation.topico.cadastrar.ValidationCadastroTopico;
+import br.com.alura.forumhub.service.validation.topico.cadastrar.ValidationCadastrarTopico;
+import br.com.alura.forumhub.service.validation.topico.excluir.ValidationExcluirTopico;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,10 +35,13 @@ import java.util.List;
         private CursoRepository cursoRepository;
 
         @Autowired
-        private List<ValidationCadastroTopico> validationCadastroTopico;
+        private List<ValidationCadastrarTopico> validationCadastrarTopico;
 
         @Autowired
         private List<ValidationAtualizacaoTopico> validationAtualizacaoTopico;
+
+    @Autowired
+    private List<ValidationExcluirTopico> validationExcluirTopico;
 
     private Topico topicoExiste(Long id){
         return topicoRepository.findById(id)
@@ -49,7 +53,7 @@ import java.util.List;
     @Transactional
     public DadosDetalhamentoTopico cadastrar(DadosCadastroTopico dados) {
 
-        validationCadastroTopico.forEach(v -> v.validar(dados));
+        validationCadastrarTopico.forEach(v -> v.validar(dados));
 
         Usuario autor = usuarioRepository.getReferenceById(dados.idAutor());
         Curso curso = cursoRepository.getReferenceById(dados.idCurso());
@@ -95,6 +99,7 @@ import java.util.List;
     @Transactional
     public void deletar(Long id) {
         Topico topico = topicoExiste(id);
+        validationExcluirTopico.forEach(v -> v.validar(topico));
         topicoRepository.delete(topico);
     }
 }

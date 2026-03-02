@@ -1,4 +1,4 @@
-package br.com.alura.forumhub.service.validation.resposta.atualizacao;
+package br.com.alura.forumhub.service.validation.resposta.atualizar;
 
 import br.com.alura.forumhub.dto.resposta.DadosAtualizacaoResposta;
 import br.com.alura.forumhub.exception.ValidacaoException;

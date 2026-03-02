@@ -1,8 +1,8 @@
 package br.com.alura.forumhub.service;
 
+import br.com.alura.forumhub.dto.topico.DadosAtualizacaoTopico;
 import br.com.alura.forumhub.dto.topico.DadosCadastroTopico;
 import br.com.alura.forumhub.dto.topico.DadosDetalhamentoTopico;
-import br.com.alura.forumhub.dto.topico.DadosAtualizacaoTopico;
 import br.com.alura.forumhub.dto.topico.DadosListagemTopico;
 import br.com.alura.forumhub.exception.TopicoDuplicadoException;
 import br.com.alura.forumhub.model.Curso;
@@ -13,7 +13,7 @@ import br.com.alura.forumhub.repository.CursoRepository;
 import br.com.alura.forumhub.repository.TopicoRepository;
 import br.com.alura.forumhub.repository.UsuarioRepository;
 import br.com.alura.forumhub.service.validation.topico.atualizar.ValidationAtualizacaoTopico;
-import br.com.alura.forumhub.service.validation.topico.cadastrar.ValidationCadastroTopico;
+import br.com.alura.forumhub.service.validation.topico.cadastrar.ValidationCadastrarTopico;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,11 +22,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
@@ -34,7 +34,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,7 +56,7 @@ class TopicoServiceTest {
     private CursoRepository cursoRepository;
 
     @Mock
-    private ValidationCadastroTopico validadorCadastro;
+    private ValidationCadastrarTopico validadorCadastro;
 
     @Mock
     private ValidationAtualizacaoTopico validadorAtualizacao;

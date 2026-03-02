@@ -1,4 +1,4 @@
-package br.com.alura.forumhub.service.validation.resposta.cadastro;
+package br.com.alura.forumhub.service.validation.resposta.cadastrar;
 
 import br.com.alura.forumhub.dto.resposta.DadosCadastroResposta;
 import br.com.alura.forumhub.exception.ValidacaoException;
@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ValidadorTopicoFechado implements ValidationCadastroResposta {
+public class ValidadorTopicoFechado implements ValidationCadastrarResposta {
 
     @Autowired
     private TopicoRepository repository;

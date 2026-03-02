@@ -10,9 +10,9 @@ import br.com.alura.forumhub.model.Usuario;
 import br.com.alura.forumhub.repository.RespostaRepository;
 import br.com.alura.forumhub.repository.TopicoRepository;
 import br.com.alura.forumhub.repository.UsuarioRepository;
-import br.com.alura.forumhub.service.validation.resposta.atualizacao.ValidationAtualizarResposta;
-import br.com.alura.forumhub.service.validation.resposta.cadastro.ValidationCadastroResposta;
-import br.com.alura.forumhub.service.validation.resposta.exclusao.ValidationExcluirResposta;
+import br.com.alura.forumhub.service.validation.resposta.atualizar.ValidationAtualizarResposta;
+import br.com.alura.forumhub.service.validation.resposta.cadastrar.ValidationCadastrarResposta;
+import br.com.alura.forumhub.service.validation.resposta.excluir.ValidationExcluirResposta;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,7 +35,7 @@ public class RespostaService {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private List<ValidationCadastroResposta> validationCadastroResposta;
+    private List<ValidationCadastrarResposta> validationCadastrarResposta;
 
     @Autowired
     private List<ValidationAtualizarResposta> validationAtualizarResposta;
@@ -54,7 +54,7 @@ public class RespostaService {
     @Transactional
     public DadosDetalhamentoResposta cadastrar(DadosCadastroResposta dados) {
 
-        validationCadastroResposta.forEach(v -> v.validar(dados));
+        validationCadastrarResposta.forEach(v -> v.validar(dados));
 
         Topico topico = topicoRepository.getReferenceById(dados.idTopico());
         Usuario autor = usuarioRepository.getReferenceById(dados.idAutor());
