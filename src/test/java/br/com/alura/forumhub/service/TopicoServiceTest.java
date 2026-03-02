@@ -12,7 +12,7 @@ import br.com.alura.forumhub.model.Usuario;
 import br.com.alura.forumhub.repository.CursoRepository;
 import br.com.alura.forumhub.repository.TopicoRepository;
 import br.com.alura.forumhub.repository.UsuarioRepository;
-import br.com.alura.forumhub.service.validation.topico.atualizar.ValidationAtualizacaoTopico;
+import br.com.alura.forumhub.service.validation.topico.atualizar.ValidationAtualizarTopico;
 import br.com.alura.forumhub.service.validation.topico.cadastrar.ValidationCadastrarTopico;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,7 +59,7 @@ class TopicoServiceTest {
     private ValidationCadastrarTopico validadorCadastro;
 
     @Mock
-    private ValidationAtualizacaoTopico validadorAtualizacao;
+    private ValidationAtualizarTopico validadorAtualizacao;
 
     private Usuario autorFake;
     private Curso cursoFake;

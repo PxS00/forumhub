@@ -11,7 +11,7 @@ import br.com.alura.forumhub.repository.CursoRepository;
 import br.com.alura.forumhub.repository.TopicoRepository;
 import br.com.alura.forumhub.repository.UsuarioRepository;
 import br.com.alura.forumhub.service.validation.comum.ValidadorAutorExiste;
-import br.com.alura.forumhub.service.validation.topico.atualizar.ValidationAtualizacaoTopico;
+import br.com.alura.forumhub.service.validation.topico.atualizar.ValidationAtualizarTopico;
 import br.com.alura.forumhub.service.validation.topico.cadastrar.ValidationCadastrarTopico;
 import br.com.alura.forumhub.service.validation.topico.excluir.ValidationExcluirTopico;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,22 +24,22 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-    public class TopicoService {
+public class TopicoService {
 
-        @Autowired
-        private TopicoRepository topicoRepository;
+    @Autowired
+    private TopicoRepository topicoRepository;
 
-        @Autowired
-        private UsuarioRepository usuarioRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
-        @Autowired
-        private CursoRepository cursoRepository;
+    @Autowired
+    private CursoRepository cursoRepository;
 
-        @Autowired
-        private List<ValidationCadastrarTopico> validationCadastrarTopico;
+    @Autowired
+    private List<ValidationCadastrarTopico> validationCadastrarTopico;
 
-        @Autowired
-        private List<ValidationAtualizacaoTopico> validationAtualizacaoTopico;
+    @Autowired
+    private List<ValidationAtualizarTopico> validationAtualizarTopico;
 
     @Autowired
     private ValidadorAutorExiste validadorAutorExiste;
@@ -89,12 +89,10 @@ import java.util.List;
 
         Topico topico = topicoExiste(id);
 
-        Curso curso = cursoRepository.findById(dados.idCurso())
-                .orElseThrow(() ->
-                        new EntityNotFoundException("Curso não encontrado")
-                );
+        validationAtualizarTopico.forEach(v -> v.validar(topico, dados));
 
-        validationAtualizacaoTopico.forEach(v -> v.validar(id, dados));
+        Curso curso = cursoRepository.findById(dados.idCurso())
+                .orElseThrow(() -> new EntityNotFoundException("Curso não encontrado"));
 
         topico.atualizarDados(dados, curso);
 
