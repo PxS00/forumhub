@@ -1,7 +1,6 @@
-package br.com.alura.forumhub.service.validation.resposta.exclusao;
+package br.com.alura.forumhub.security;
 
 import br.com.alura.forumhub.exception.ValidacaoException;
-import br.com.alura.forumhub.model.Resposta;
 import br.com.alura.forumhub.model.Usuario;
 import br.com.alura.forumhub.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,30 +10,38 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ValidadorAutorExcluirResposta implements ValidationExcluirResposta {
+public class AutorizacaoService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Override
-    public void validar(Resposta resposta) {
+    public Usuario usuarioLogado() {
+
         Authentication authentication = SecurityContextHolder
                 .getContext()
                 .getAuthentication();
 
         String email = authentication.getName();
 
-        Usuario usuarioLogado = usuarioRepository.findByEmail(email)
+        return usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+    }
 
-        if (usuarioLogado.getPerfis()
+    public boolean ehAdmin(Usuario usuario) {
+        return usuario.getPerfis()
                 .stream()
-                .anyMatch(p -> p.getNome().equals("ROLE_ADMIN"))) {
+                .anyMatch(p -> p.getNome().equals("ROLE_ADMIN"));
+    }
+
+    public void validarAutorOuAdmin(Long idAutor) {
+        Usuario usuario = usuarioLogado();
+
+        if (ehAdmin(usuario)) {
             return;
         }
 
-        if (!resposta.getAutor().getId().equals(usuarioLogado.getId())) {
-            throw new ValidacaoException("Somente o autor pode excluir a resposta");
+        if (!usuario.getId().equals(idAutor)) {
+            throw new ValidacaoException("Usuário não autorizado");
         }
     }
 }
