@@ -16,10 +16,10 @@ import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Testes unitários de ValidarTopicoDuplicado")
-class ValidarTopicoDuplicadoTest {
+class ValidadorTopicoDuplicadoTest {
 
     @InjectMocks
-    private ValidarTopicoDuplicado validador;
+    private ValidadorTopicoDuplicado validador;
 
     @Mock
     private TopicoRepository repository;

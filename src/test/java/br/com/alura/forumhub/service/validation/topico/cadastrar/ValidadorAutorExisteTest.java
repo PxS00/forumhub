@@ -16,10 +16,10 @@ import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Testes unitários de ValidarAutorExiste")
-class ValidarAutorExisteTest {
+class ValidadorAutorExisteTest {
 
     @InjectMocks
-    private ValidarAutorExiste validador;
+    private ValidadorAutorExiste validador;
 
     @Mock
     private UsuarioRepository usuarioRepository;

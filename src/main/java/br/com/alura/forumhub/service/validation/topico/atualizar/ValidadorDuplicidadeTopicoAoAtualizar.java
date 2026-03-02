@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ValidarDuplicidadeTopicoAoAtualizar implements ValidationAtualizacaoTopico {
+public class ValidadorDuplicidadeTopicoAoAtualizar implements ValidationAtualizacaoTopico {
 
     @Autowired
     private TopicoRepository repository;
