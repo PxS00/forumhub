@@ -1,5 +1,6 @@
 package br.com.alura.forumhub.controllers;
 
+import br.com.alura.forumhub.dto.resposta.DadosAtualizacaoResposta;
 import br.com.alura.forumhub.dto.resposta.DadosCadastroResposta;
 import br.com.alura.forumhub.dto.resposta.DadosDetalhamentoResposta;
 import br.com.alura.forumhub.dto.resposta.DadosListagemResposta;
@@ -48,5 +49,11 @@ public class RespostaController {
     @PutMapping("/{id}")
     public ResponseEntity<DadosDetalhamentoResposta> atualizacao(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoResposta dados) {
         return ResponseEntity.ok(service.atualizar(id, dados));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> exclusao(@PathVariable Long id) {
+        service.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 }

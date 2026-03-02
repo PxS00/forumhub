@@ -4,20 +4,19 @@ import br.com.alura.forumhub.dto.resposta.DadosAtualizacaoResposta;
 import br.com.alura.forumhub.dto.resposta.DadosCadastroResposta;
 import br.com.alura.forumhub.dto.resposta.DadosDetalhamentoResposta;
 import br.com.alura.forumhub.dto.resposta.DadosListagemResposta;
-import br.com.alura.forumhub.exception.ValidacaoException;
 import br.com.alura.forumhub.model.Resposta;
 import br.com.alura.forumhub.model.Topico;
 import br.com.alura.forumhub.model.Usuario;
 import br.com.alura.forumhub.repository.RespostaRepository;
 import br.com.alura.forumhub.repository.TopicoRepository;
 import br.com.alura.forumhub.repository.UsuarioRepository;
+import br.com.alura.forumhub.service.validation.resposta.atualizacao.ValidationAtualizarResposta;
 import br.com.alura.forumhub.service.validation.resposta.cadastro.ValidationCadastroResposta;
+import br.com.alura.forumhub.service.validation.resposta.exclusao.ValidationExcluirResposta;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +36,12 @@ public class RespostaService {
 
     @Autowired
     private List<ValidationCadastroResposta> validationCadastroResposta;
+
+    @Autowired
+    private List<ValidationAtualizarResposta> validationAtualizarResposta;
+
+    @Autowired
+    private List<ValidationExcluirResposta> validationExcluirResposta;
 
 
     private Resposta respostaExiste(Long id) {
@@ -75,22 +80,23 @@ public class RespostaService {
         return new DadosDetalhamentoResposta(resposta);
     }
 
+    @Transactional
     public DadosDetalhamentoResposta atualizar(Long id, DadosAtualizacaoResposta dados) {
 
         Resposta resposta = respostaExiste(id);
-
-        Authentication authentication = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
-
-        Usuario usuarioLogado = (Usuario) authentication.getPrincipal();
-
-        if (!resposta.getAutor().getId().equals(usuarioLogado.getId())) {
-            throw new ValidacaoException("Somente o autor pode atualizar a resposta");
-        }
+        validationAtualizarResposta.forEach(v -> v.validar(resposta, dados));
 
         resposta.atualizarDados(dados);
 
         return new DadosDetalhamentoResposta(resposta);
+    }
+
+    @Transactional
+    public void excluir(Long id) {
+
+        Resposta resposta = respostaExiste(id);
+        validationExcluirResposta.forEach(v -> v.validar(resposta));
+
+        respostaRepository.delete(resposta);
     }
 }
