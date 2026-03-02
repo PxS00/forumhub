@@ -1,5 +1,6 @@
 package br.com.alura.forumhub.dto.topico;
 
+import br.com.alura.forumhub.dto.DadosComAutor;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -16,5 +17,5 @@ public record DadosCadastroTopico(
 
         @NotNull
         Long idAutor
-) {
+) implements DadosComAutor {
 }

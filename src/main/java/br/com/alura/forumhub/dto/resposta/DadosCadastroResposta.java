@@ -1,5 +1,6 @@
 package br.com.alura.forumhub.dto.resposta;
 
+import br.com.alura.forumhub.dto.DadosComAutor;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -15,5 +16,5 @@ public record DadosCadastroResposta(
 
         @NotNull(message = "Autor é obrigatório")
         Long idAutor
-) {
+) implements DadosComAutor {
 }

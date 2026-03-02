@@ -10,6 +10,7 @@ import br.com.alura.forumhub.model.Usuario;
 import br.com.alura.forumhub.repository.CursoRepository;
 import br.com.alura.forumhub.repository.TopicoRepository;
 import br.com.alura.forumhub.repository.UsuarioRepository;
+import br.com.alura.forumhub.service.validation.comum.ValidadorAutorExiste;
 import br.com.alura.forumhub.service.validation.topico.atualizar.ValidationAtualizacaoTopico;
 import br.com.alura.forumhub.service.validation.topico.cadastrar.ValidationCadastrarTopico;
 import br.com.alura.forumhub.service.validation.topico.excluir.ValidationExcluirTopico;
@@ -41,6 +42,9 @@ import java.util.List;
         private List<ValidationAtualizacaoTopico> validationAtualizacaoTopico;
 
     @Autowired
+    private ValidadorAutorExiste validadorAutorExiste;
+
+    @Autowired
     private List<ValidationExcluirTopico> validationExcluirTopico;
 
     private Topico topicoExiste(Long id){
@@ -53,6 +57,7 @@ import java.util.List;
     @Transactional
     public DadosDetalhamentoTopico cadastrar(DadosCadastroTopico dados) {
 
+        validadorAutorExiste.validar(dados);
         validationCadastrarTopico.forEach(v -> v.validar(dados));
 
         Usuario autor = usuarioRepository.getReferenceById(dados.idAutor());

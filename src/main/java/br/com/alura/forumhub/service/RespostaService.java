@@ -10,6 +10,7 @@ import br.com.alura.forumhub.model.Usuario;
 import br.com.alura.forumhub.repository.RespostaRepository;
 import br.com.alura.forumhub.repository.TopicoRepository;
 import br.com.alura.forumhub.repository.UsuarioRepository;
+import br.com.alura.forumhub.service.validation.comum.ValidadorAutorExiste;
 import br.com.alura.forumhub.service.validation.resposta.atualizar.ValidationAtualizarResposta;
 import br.com.alura.forumhub.service.validation.resposta.cadastrar.ValidationCadastrarResposta;
 import br.com.alura.forumhub.service.validation.resposta.excluir.ValidationExcluirResposta;
@@ -43,6 +44,9 @@ public class RespostaService {
     @Autowired
     private List<ValidationExcluirResposta> validationExcluirResposta;
 
+    @Autowired
+    private ValidadorAutorExiste validadorAutorExiste;
+
 
     private Resposta respostaExiste(Long id) {
         return respostaRepository.findById(id)
@@ -54,6 +58,7 @@ public class RespostaService {
     @Transactional
     public DadosDetalhamentoResposta cadastrar(DadosCadastroResposta dados) {
 
+        validadorAutorExiste.validar(dados);
         validationCadastrarResposta.forEach(v -> v.validar(dados));
 
         Topico topico = topicoRepository.getReferenceById(dados.idTopico());
