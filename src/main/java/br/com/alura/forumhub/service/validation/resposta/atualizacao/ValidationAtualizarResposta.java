@@ -1,7 +1,8 @@
 package br.com.alura.forumhub.service.validation.resposta.atualizacao;
 
 import br.com.alura.forumhub.dto.resposta.DadosAtualizacaoResposta;
+import br.com.alura.forumhub.model.Resposta;
 
 public interface ValidationAtualizarResposta {
-    void validar(Long id, DadosAtualizacaoResposta dados);
+    void validar(Resposta resposta, DadosAtualizacaoResposta dados);
 }
