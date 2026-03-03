@@ -37,15 +37,25 @@ API REST para gerenciamento de um fórum educacional, desenvolvida com **Spring 
 
 ```
 src/main/java/br/com/alura/forumhub/
-├── config/           # Configurações gerais da aplicação
-├── controllers/      # Endpoints REST
+├── config/           # Configurações gerais da aplicação (SpringDoc)
+├── controllers/      # Endpoints REST (Autenticacao, Topico, Curso, Resposta, Usuario)
 ├── dto/              # Records de entrada e saída da API
+│   ├── curso/
+│   ├── resposta/
+│   ├── security/
+│   ├── topico/
+│   └── usuario/
 ├── exception/        # Tratamento global de exceções
 ├── model/            # Entidades JPA (Topico, Usuario, Perfil, Curso, Resposta)
 ├── repository/       # Interfaces Spring Data JPA
 ├── security/         # Filtro JWT, TokenService, SecurityConfiguration
 └── service/          # Regras de negócio e validações
-    └── validation/   # Validadores personalizados
+    └── validation/   # Validadores personalizados por entidade e operação
+        ├── comum/    # Validadores compartilhados (ex.: ValidadorAutorExiste)
+        ├── curso/
+        ├── resposta/
+        ├── topico/
+        └── usuario/
 ```
 
 ---
@@ -53,14 +63,27 @@ src/main/java/br/com/alura/forumhub/
 ## 🗂️ Modelo de Dados
 
 ```
-Perfil  <──── usuarios_perfis ────> Usuario
+Perfil  <──── usuarios_perfis ────> Usuario (ativo)
                                        │
-                                Curso  ─────  Topico  ───── StatusTopico (enum)
+                        Curso  ─────  Topico  ───── StatusTopico (enum)    
                                        │
-                                     Resposta                                 
+                                     Resposta
 ```
 
 As migrações do banco são gerenciadas pelo **Flyway** (diretório `src/main/resources/db/migration`).
+
+### 🟢 Soft Delete
+
+Usuários não são removidos fisicamente do banco. O campo `ativo` controla o estado da conta:
+
+- `true` → usuário ativo
+- `false` → usuário desativado
+
+Usuários desativados:
+
+- Não conseguem autenticar
+- Não aparecem na listagem padrão (`GET /usuario`)
+- Podem ser reativados futuramente
 
 ---
 
@@ -68,8 +91,13 @@ As migrações do banco são gerenciadas pelo **Flyway** (diretório `src/main/r
 
 - Autenticação **stateless** via **JWT (Bearer Token)**
 - Senhas armazenadas com hash **BCrypt**
-- Apenas o endpoint `POST /login` e a documentação Swagger são públicos
+- Autorização baseada em roles com `@PreAuthorize` (`@EnableMethodSecurity`)
+- Endpoints públicos:
+    - `POST /login`
+    - `POST /usuario` (cadastro de novo usuário)
+    - Documentação Swagger (`/swagger-ui/**`, `/v3/api-docs/**`)
 - Todos os demais endpoints exigem token válido no header `Authorization`
+- Endpoint `GET /usuario/listar-todos` exige role **ADMIN**
 
 ---
 
@@ -122,6 +150,47 @@ As migrações do banco são gerenciadas pelo **Flyway** (diretório `src/main/r
 
 ---
 
+### Cursos
+
+> Todos os endpoints abaixo requerem `Authorization: Bearer <token>`
+
+| Método   | Endpoint       | Descrição                                          |
+|----------|----------------|----------------------------------------------------|
+| `POST`   | `/cursos`      | Cadastra um novo curso                             |
+| `GET`    | `/cursos`      | Lista cursos com paginação (ordenação: `nome,asc`) |
+| `GET`    | `/cursos/{id}` | Detalha um curso específico                        |
+| `PUT`    | `/cursos/{id}` | Atualiza um curso existente                        |
+| `DELETE` | `/cursos/{id}` | Remove um curso                                    |
+
+---
+
+### Respostas
+
+> Todos os endpoints abaixo requerem `Authorization: Bearer <token>`
+
+| Método   | Endpoint          | Descrição                                                    |
+|----------|-------------------|--------------------------------------------------------------|
+| `POST`   | `/respostas`      | Cadastra uma nova resposta em um tópico                      |
+| `GET`    | `/respostas`      | Lista respostas com paginação (ordenação: `dataCriacao,asc`) |
+| `GET`    | `/respostas/{id}` | Detalha uma resposta específica                              |
+| `PUT`    | `/respostas/{id}` | Atualiza uma resposta existente                              |
+| `DELETE` | `/respostas/{id}` | Remove uma resposta                                          |
+
+---
+
+### Usuários
+
+| Método   | Endpoint                | Descrição                                       | Auth    |
+|----------|-------------------------|-------------------------------------------------|---------|
+| `POST`   | `/usuario`              | Cadastra um novo usuário                        | ❌       |
+| `GET`    | `/usuario`              | Lista usuários ativos com paginação             | ✅       |
+| `GET`    | `/usuario/listar-todos` | Lista todos os usuários (requer role **ADMIN**) | ✅ ADMIN |
+| `GET`    | `/usuario/{id}`         | Detalha um usuário específico                   | ✅       |
+| `PUT`    | `/usuario/{id}`         | Atualiza um usuário existente                   | ✅       |
+| `DELETE` | `/usuario/{id}`         | Remove um usuário                               | ✅       |
+
+---
+
 ## ⚙️ Configuração e Variáveis de Ambiente
 
 Configure as seguintes variáveis de ambiente antes de iniciar a aplicação:
@@ -133,6 +202,22 @@ Configure as seguintes variáveis de ambiente antes de iniciar a aplicação:
 | `MYSQL_DB_PASS` | Senha do banco de dados | `senha` |
 | `JWT_SECRET` | Chave secreta para assinar os tokens JWT | `minha-chave-secreta-super-segura` |
 | `JWT_EXPIRATION` | Tempo de expiração do token em ms (padrão: 86400000 = 24h) | `86400000` |
+
+> ⚠️ **Nunca commite o valor real de `JWT_SECRET` no repositório.** Use variáveis de ambiente, um arquivo `.env` (
+> adicionado ao `.gitignore`) ou um gerenciador de segredos.
+
+---
+
+## 📌 Status Codes
+
+| Código | Quando ocorre                                   |
+|--------|-------------------------------------------------|
+| `200`  | Requisição bem-sucedida                         |
+| `201`  | Recurso criado com sucesso                      |
+| `400`  | Violação de regra de negócio ou dados inválidos |
+| `401`  | Não autenticado (token ausente ou inválido)     |
+| `403`  | Acesso negado (role insuficiente)               |
+| `404`  | Recurso não encontrado                          |
 
 ---
 
@@ -167,7 +252,7 @@ Configure as seguintes variáveis de ambiente antes de iniciar a aplicação:
    Ou gere o `.jar` e execute:
    ```bash
    ./mvnw clean package -DskipTests
-   java -jar target/forumhub-0.0.1-SNAPSHOT.jar
+   java -jar target/forumhub-1.0.0.jar
    ```
 
 5. A API estará disponível em `http://localhost:8080`.
@@ -202,28 +287,72 @@ Os relatórios são gerados em `target/surefire-reports/`.
 
 ### Cobertura de testes
 
-- `TopicoControllerTest` — testes de integração dos endpoints
-- `TopicoServiceTest` — testes unitários da camada de serviço
-- `TopicoRepositoryTest` — testes de repositório com JPA
-- `ValidarTopicoDuplicadoTest` — validação de duplicidade no cadastro
-- `ValidarDuplicidadeTopicoAoAtualizarTest` — validação de duplicidade na atualização
-- `ValidarAutorExisteTest` — validação de existência do autor
-- `ValidarCursoExisteTest` — validação de existência do curso
+**Controllers (integração):**
+
+- `TopicoControllerTest`
+- `CursoControllerTest`
+- `RespostaControllerTest`
+- `UsuarioControllerTest`
+
+**Services (unitários):**
+
+- `TopicoServiceTest`
+- `CursoServiceTest`
+- `RespostaServiceTest`
+- `UsuarioServiceTest`
+
+**Repository:**
+
+- `TopicoRepositoryTest`
+
+**Security:**
+
+- `TokenServiceTest`
+- `AutorizacaoServiceTest`
+- `SecurityFilterTest`
+
+**Validadores — Tópico:**
+
+- `ValidadorTopicoDuplicadoTest` — duplicidade no cadastro
+- `ValidadorAutorExisteTest` — existência do autor
+- `ValidadorCursoExisteTest` — existência do curso
+- `ValidadorAutorTopicoTest` — autor na atualização
+- `ValidadorDuplicidadeTopicoAoAtualizarTest` — duplicidade na atualização
+- `ValidadorAutorExcluirTopicoTest` — autor na exclusão
+
+**Validadores — Resposta:**
+
+- `ValidadorTopicoExisteTest` — existência do tópico ao cadastrar
+- `ValidadorTopicoFechadoTest` — tópico fechado ao cadastrar
+- `ValidadorTopicoSolucionadoTest` — tópico solucionado ao cadastrar
+- `ValidadorAutorDaRespostaTest` — autor na atualização
+- `ValidadorAutorExcluirRespostaTest` — autor na exclusão
+
+**Validadores — Curso:**
+
+- `ValidadorCursoDuplicadoTest` — duplicidade no cadastro
+- `ValidadorCursoDuplicadoAtualizacaoTest` — duplicidade na atualização
+
+**Validadores — Usuário:**
+
+- `ValidadorEmailDuplicadoTest` — e-mail duplicado no cadastro
+- `ValidadorEmailDuplicadoAtualizacaoTest` — e-mail duplicado na atualização
 
 ---
 
 ## 📁 Estrutura de Migrações
 
-| Arquivo | Descrição |
-|---------|-----------|
-| `V1__create-table-perfis.sql` | Cria a tabela de perfis |
-| `V2__create-table-usuarios.sql` | Cria a tabela de usuários |
-| `V3__create-table-usuarios_perfis.sql` | Cria a tabela de relacionamento usuário-perfil |
-| `V4__create_table_cursos.sql` | Cria a tabela de cursos |
-| `V5__create_table_topicos.sql` | Cria a tabela de tópicos |
-| `V6__create_table_respostas.sql` | Cria a tabela de respostas |
+| Arquivo                                          | Descrição                                      |
+|--------------------------------------------------|------------------------------------------------|
+| `V1__create-table-perfis.sql`                    | Cria a tabela de perfis                        |
+| `V2__create-table-usuarios.sql`                  | Cria a tabela de usuários                      |
+| `V3__create-table-usuarios_perfis.sql`           | Cria a tabela de relacionamento usuário-perfil |
+| `V4__create_table_cursos.sql`                    | Cria a tabela de cursos                        |
+| `V5__create_table_topicos.sql`                   | Cria a tabela de tópicos                       |
+| `V6__create_table_respostas.sql`                 | Cria a tabela de respostas                     |
 | `V7__alter_unique_constraint_usuarios_email.sql` | Adiciona constraint única no e-mail do usuário |
-| `V8__insert_perfis.sql` | Insere os perfis padrão |
+| `V8__insert_perfis.sql`                          | Insere os perfis padrão                        |
+| `V9__add_column_ativo_usuarios.sql`              | Adiciona coluna `ativo` na tabela de usuários  |
 
 ---
 
