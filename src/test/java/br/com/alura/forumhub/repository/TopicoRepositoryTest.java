@@ -16,7 +16,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
+
 import java.time.LocalDateTime;
+import java.util.HashSet;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -39,7 +42,15 @@ class TopicoRepositoryTest {
     void setUp() {
         cursoSpring = em.persist(new Curso(null, "Spring Boot", "Programação"));
         cursoJava   = em.persist(new Curso(null, "Java Avançado", "Programação"));
-        autor       = em.persist(new Usuario(null, "Ana Silva", "ana@email.com", "senha", new java.util.HashSet<>()));
+        autor = em.persist(new Usuario(
+                null,
+                "Ana Silva",
+                "ana@email.com",
+                "senhaHashFake",
+                true,
+                new HashSet<>()
+        ));
+
     }
 
     // Método utilitário para criar e persistir um tópico com data específica

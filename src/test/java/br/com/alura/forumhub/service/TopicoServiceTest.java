@@ -12,8 +12,10 @@ import br.com.alura.forumhub.model.Usuario;
 import br.com.alura.forumhub.repository.CursoRepository;
 import br.com.alura.forumhub.repository.TopicoRepository;
 import br.com.alura.forumhub.repository.UsuarioRepository;
+import br.com.alura.forumhub.service.validation.comum.ValidadorAutorExiste;
 import br.com.alura.forumhub.service.validation.topico.atualizar.ValidationAtualizarTopico;
 import br.com.alura.forumhub.service.validation.topico.cadastrar.ValidationCadastrarTopico;
+import br.com.alura.forumhub.service.validation.topico.excluir.ValidationExcluirTopico;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -61,6 +63,12 @@ class TopicoServiceTest {
     @Mock
     private ValidationAtualizarTopico validadorAtualizacao;
 
+    @Mock
+    private ValidadorAutorExiste validadorAutorExiste;
+
+    @Mock
+    private ValidationExcluirTopico validadorExcluir;
+
     private Usuario autorFake;
     private Curso cursoFake;
     private Topico topicoFake;
@@ -68,10 +76,11 @@ class TopicoServiceTest {
     @BeforeEach
     void setUp() {
         // Injeta as listas de validadores nos campos privados via ReflectionTestUtils
-        ReflectionTestUtils.setField(service, "validationCadastroTopico", List.of(validadorCadastro));
-        ReflectionTestUtils.setField(service, "validationAtualizacaoTopico", List.of(validadorAtualizacao));
+        ReflectionTestUtils.setField(service, "validationCadastrarTopico", List.of(validadorCadastro));
+        ReflectionTestUtils.setField(service, "validationAtualizarTopico", List.of(validadorAtualizacao));
+        ReflectionTestUtils.setField(service, "validationExcluirTopico", List.of(validadorExcluir));
 
-        autorFake = new Usuario(1L, "Ana Silva", "ana@email.com", "senha123", new java.util.HashSet<>());
+        autorFake = new Usuario(1L, "Ana Silva", "ana@email.com", "senha123", true, new java.util.HashSet<>());
         cursoFake = new Curso(1L, "Spring Boot", "Programação");
 
         topicoFake = new Topico(
@@ -91,6 +100,7 @@ class TopicoServiceTest {
     void cadastrar_comDadosValidos_deveRetornarDetalhamento() {
         var dados = new DadosCadastroTopico("Dúvida sobre Spring", "Como funciona o IoC?", 1L, 1L);
 
+        willDoNothing().given(validadorAutorExiste).validar(dados);
         willDoNothing().given(validadorCadastro).validar(dados);
         given(usuarioRepository.getReferenceById(1L)).willReturn(autorFake);
         given(cursoRepository.getReferenceById(1L)).willReturn(cursoFake);
@@ -127,6 +137,7 @@ class TopicoServiceTest {
 
         service.cadastrar(dados);
 
+        then(validadorAutorExiste).should().validar(dados);
         then(validadorCadastro).should().validar(dados);
     }
 
@@ -272,14 +283,14 @@ class TopicoServiceTest {
 
         given(topicoRepository.findById(1L)).willReturn(Optional.of(topicoFake));
         given(cursoRepository.findById(1L)).willReturn(Optional.of(cursoBd));
-        willDoNothing().given(validadorAtualizacao).validar(1L, dados);
+        willDoNothing().given(validadorAtualizacao).validar(topicoFake, dados);
 
         DadosDetalhamentoTopico resultado = service.atualizar(1L, dados);
 
         assertThat(resultado.titulo()).isEqualTo("Novo título");
         assertThat(resultado.mensagem()).isEqualTo("Nova mensagem");
         assertThat(resultado.nomeCurso()).isEqualTo("Spring Boot");
-        then(validadorAtualizacao).should().validar(1L, dados);
+        then(validadorAtualizacao).should().validar(topicoFake, dados);
     }
 
     @Test
@@ -312,8 +323,7 @@ class TopicoServiceTest {
         var dados = new DadosAtualizacaoTopico("Título duplicado", "Mensagem duplicada", 1L);
 
         given(topicoRepository.findById(1L)).willReturn(Optional.of(topicoFake));
-        given(cursoRepository.findById(1L)).willReturn(Optional.of(cursoFake));
-        willThrow(new TopicoDuplicadoException()).given(validadorAtualizacao).validar(1L, dados);
+        willThrow(new TopicoDuplicadoException()).given(validadorAtualizacao).validar(topicoFake, dados);
 
         assertThatThrownBy(() -> service.atualizar(1L, dados))
                 .isInstanceOf(TopicoDuplicadoException.class)
@@ -328,11 +338,12 @@ class TopicoServiceTest {
     @DisplayName("Deve deletar tópico com sucesso quando ID válido")
     void deletar_idValido_deveDeletarSemErros() {
         given(topicoRepository.findById(1L)).willReturn(Optional.of(topicoFake));
-        willDoNothing().given(topicoRepository).deleteById(1L);
+        willDoNothing().given(validadorExcluir).validar(topicoFake);
+        willDoNothing().given(topicoRepository).delete(topicoFake);
 
         assertThatCode(() -> service.deletar(1L)).doesNotThrowAnyException();
 
-        then(topicoRepository).should().deleteById(1L);
+        then(topicoRepository).should().delete(topicoFake);
     }
 
     @Test
@@ -344,7 +355,7 @@ class TopicoServiceTest {
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Tópico não encontrado");
 
-        then(topicoRepository).should(never()).deleteById(any());
+        then(topicoRepository).should(never()).delete(any());
     }
 }
 
