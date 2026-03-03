@@ -4,10 +4,12 @@ import br.com.alura.forumhub.dto.usuario.DadosAtualizacaoUsuario;
 import br.com.alura.forumhub.dto.usuario.DadosCadastroUsuario;
 import br.com.alura.forumhub.dto.usuario.DadosDetalhamentoUsuario;
 import br.com.alura.forumhub.dto.usuario.DadosListagemUsuario;
+import br.com.alura.forumhub.exception.ValidacaoException;
 import br.com.alura.forumhub.model.Perfil;
 import br.com.alura.forumhub.model.Usuario;
 import br.com.alura.forumhub.repository.PerfilRepository;
 import br.com.alura.forumhub.repository.UsuarioRepository;
+import br.com.alura.forumhub.security.AutorizacaoService;
 import br.com.alura.forumhub.service.validation.usuario.atualizar.ValidationAtualizacaoUsuario;
 import br.com.alura.forumhub.service.validation.usuario.cadastrar.ValidationCadastroUsuario;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UsuarioService {
@@ -39,6 +42,9 @@ public class UsuarioService {
     @Autowired
     private List<ValidationCadastroUsuario> validationCadastroUsuario;
 
+    @Autowired
+    private AutorizacaoService autorizacaoService;
+
     private Usuario usuarioExiste(Long id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() ->
@@ -49,9 +55,23 @@ public class UsuarioService {
     @Transactional
     public DadosDetalhamentoUsuario cadastrar(DadosCadastroUsuario dados) {
 
-        validationCadastroUsuario.forEach(v -> v.validar(dados));
+        Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(dados.email());
 
         String senhaHash = passwordEncoder.encode(dados.senha());
+
+        if (usuarioExistente.isPresent()) {
+
+            Usuario usuario = usuarioExistente.get();
+
+            if (!usuario.getAtivo()) {
+                usuario.reativar(senhaHash);
+                return new DadosDetalhamentoUsuario(usuario);
+            }
+
+            throw new ValidacaoException("Já existe um usuário cadastrado com este e-mail");
+        }
+
+        validationCadastroUsuario.forEach(v -> v.validar(dados));
 
         Usuario usuario = new Usuario(
                 dados.nome(),
@@ -60,14 +80,22 @@ public class UsuarioService {
         );
 
         Perfil perfilUser = perfilRepository.findByNome("ROLE_USER");
-
         usuario.getPerfis().add(perfilUser);
+
         usuarioRepository.save(usuario);
 
         return new DadosDetalhamentoUsuario(usuario);
     }
 
     public Page<DadosListagemUsuario> listar(Pageable paginacao) {
+
+        return usuarioRepository
+                .findByAtivoTrue(paginacao)
+                .map(DadosListagemUsuario::new);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<DadosListagemUsuario> listarTodos(Pageable paginacao) {
 
         return usuarioRepository
                 .findAll(paginacao)
@@ -86,8 +114,9 @@ public class UsuarioService {
 
         Usuario usuario = usuarioExiste(id);
 
-        validationAtualizacaoUsuarios
-                .forEach(v -> v.validar(id, dados));
+        autorizacaoService.validarAutorOuAdmin(usuario.getId());
+
+        validationAtualizacaoUsuarios.forEach(v -> v.validar(usuario, dados));
 
         String senhaHash = passwordEncoder.encode(dados.senha());
 
@@ -99,6 +128,7 @@ public class UsuarioService {
     @Transactional
     public void deletar(Long id) {
         Usuario usuario = usuarioExiste(id);
-        usuarioRepository.delete(usuario);
+        autorizacaoService.validarAutorOuAdmin(usuario.getId());
+        usuario.desativar();
     }
 }

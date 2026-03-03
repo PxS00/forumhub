@@ -2,9 +2,6 @@ package br.com.alura.forumhub.security;
 
 import br.com.alura.forumhub.exception.ValidacaoException;
 import br.com.alura.forumhub.model.Usuario;
-import br.com.alura.forumhub.repository.UsuarioRepository;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -12,19 +9,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class AutorizacaoService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
     public Usuario usuarioLogado() {
 
         Authentication authentication = SecurityContextHolder
                 .getContext()
                 .getAuthentication();
 
-        String email = authentication.getName();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ValidacaoException("Usuário não autenticado");
+        }
 
-        return usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+        return (Usuario) authentication.getPrincipal();
     }
 
     public boolean ehAdmin(Usuario usuario) {
@@ -42,6 +37,14 @@ public class AutorizacaoService {
 
         if (!usuario.getId().equals(idAutor)) {
             throw new ValidacaoException("Usuário não autorizado");
+        }
+    }
+
+    public void validarAdmin() {
+        Usuario usuario = usuarioLogado();
+
+        if (!ehAdmin(usuario)) {
+            throw new ValidacaoException("Acesso permitido apenas para administradores");
         }
     }
 }

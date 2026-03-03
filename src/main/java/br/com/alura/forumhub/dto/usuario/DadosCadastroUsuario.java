@@ -26,6 +26,5 @@ public record DadosCadastroUsuario(
                 message = "Senha deve conter letra maiúscula, minúscula, número e símbolo"
         )
         String senha
-
 ) {
 }

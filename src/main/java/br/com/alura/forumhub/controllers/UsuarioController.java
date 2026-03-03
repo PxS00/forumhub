@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -43,6 +44,20 @@ public class UsuarioController {
             ) Pageable paginacao) {
 
         var page = service.listar(paginacao);
+
+        return ResponseEntity.ok(page);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/listar-todos")
+    public ResponseEntity<Page<DadosListagemUsuario>> listagemCompleta(
+            @PageableDefault(
+                    size = 10,
+                    sort = "nome",
+                    direction = Sort.Direction.ASC
+            ) Pageable paginacao) {
+
+        var page = service.listarTodos(paginacao);
 
         return ResponseEntity.ok(page);
     }

@@ -7,9 +7,8 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Date;
 
 @Service
@@ -30,9 +29,8 @@ public class TokenService {
                     .withIssuer(ISSUER)
                     .withSubject(usuario.getUsername())
                     .withClaim("id", usuario.getId())
-                    .withExpiresAt(
-                            new Date(System.currentTimeMillis() + expiration)
-                    )
+                    .withExpiresAt(new Date(System.currentTimeMillis() + expiration))
+                    .withIssuedAt(Instant.now())
                     .sign(algorithm);
         }catch (JWTCreationException e){
             throw new RuntimeException("Error generating JWT token", e);

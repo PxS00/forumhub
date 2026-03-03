@@ -1,5 +1,6 @@
 package br.com.alura.forumhub.security;
 
+import br.com.alura.forumhub.model.Usuario;
 import br.com.alura.forumhub.repository.UsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,6 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 
 @Component
@@ -23,28 +25,28 @@ public class SecurityFilter extends OncePerRequestFilter {
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
         var tokenJWT = recuperarToken(request);
 
         if (tokenJWT != null) {
 
-            var subject =
-                    tokenService.getSubject(tokenJWT);
+            var subject = tokenService.getSubject(tokenJWT);
 
-            var usuario =
-                    repository.findByEmail(subject);
+            repository.findByEmail(subject)
+                    .filter(Usuario::getAtivo) // impede login de usuário desativado
+                    .ifPresent(usuario -> {
 
-            if (usuario != null) {
-                var authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                usuario,
-                                null,
-                                usuario.getAuthorities());
+                        var authentication =
+                                new UsernamePasswordAuthenticationToken(
+                                        usuario,
+                                        null,
+                                        usuario.getAuthorities());
 
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authentication);
-            }
+                        SecurityContextHolder.getContext()
+                                .setAuthentication(authentication);
+                    });
         }
 
         filterChain.doFilter(request, response);
@@ -62,7 +64,6 @@ public class SecurityFilter extends OncePerRequestFilter {
                     .replace("Bearer ", "")
                     .trim();
         }
-
         return null;
     }
 }

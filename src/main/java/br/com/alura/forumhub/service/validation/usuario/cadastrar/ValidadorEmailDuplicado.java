@@ -14,8 +14,8 @@ public class ValidadorEmailDuplicado implements ValidationCadastroUsuario {
 
     @Override
     public void validar(DadosCadastroUsuario dados) {
-        if (repository.existsByEmail(dados.email())) {
-            throw new ValidacaoException("Email já cadastrado");
+        if (repository.existsByEmailAndAtivoTrue(dados.email())) {
+            throw new ValidacaoException("Já existe um usuário cadastrado com este e-mail");
         }
     }
 }

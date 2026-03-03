@@ -1,7 +1,6 @@
 package br.com.alura.forumhub.model;
 
 import br.com.alura.forumhub.dto.usuario.DadosAtualizacaoUsuario;
-import br.com.alura.forumhub.dto.usuario.DadosCadastroUsuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,6 +32,9 @@ public class Usuario implements UserDetails {
     @Column(nullable = false)
     private String senha;
 
+    @Column(nullable = false)
+    private Boolean ativo;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "usuarios_perfis",
@@ -41,16 +43,11 @@ public class Usuario implements UserDetails {
     )
     private Set<Perfil> perfis = new HashSet<>();
 
-    public Usuario(DadosCadastroUsuario dados) {
-        this.nome = dados.nome();
-        this.email = dados.email();
-        this.senha = dados.senha();
-    }
-
     public Usuario(String nome, String email, String senhaHash) {
         this.nome = nome;
         this.email = email;
         this.senha = senhaHash;
+        this.ativo = true; // por padrão, o usuário é criado como ativo
     }
 
     @Override
@@ -74,12 +71,27 @@ public class Usuario implements UserDetails {
 
     @Override public boolean isCredentialsNonExpired() { return true; }
 
-    @Override public boolean isEnabled() { return true; }
+    @Override
+    public boolean isEnabled() {
+        return this.ativo;
+    }
 
     public void atualizarDados(DadosAtualizacaoUsuario dados, String senhaHash) {
 
         this.nome = dados.nome();
         this.email = dados.email();
+
+        if (senhaHash != null) {
+            this.senha = senhaHash;
+        }
+    }
+
+    public void desativar() {
+        this.ativo = false;
+    }
+
+    public void reativar(String senhaHash) {
+        this.ativo = true;
         this.senha = senhaHash;
     }
 }
