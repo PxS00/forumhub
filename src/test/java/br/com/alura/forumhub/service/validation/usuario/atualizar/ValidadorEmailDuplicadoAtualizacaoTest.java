@@ -72,6 +72,18 @@ class ValidadorEmailDuplicadoAtualizacaoTest {
 
         assertThatCode(() -> validador.validar(usuario, dados)).doesNotThrowAnyException();
     }
+
+    @Test
+    @DisplayName("Não deve lançar exceção quando novo e-mail pertence apenas a usuário inativo")
+    void validar_emailPertenceAUsuarioInativo_naoDeveLancarExcecao() {
+        // existsByEmailAndAtivoTrue retorna false pois o e-mail pertence a um usuário inativo
+        Usuario usuario = criarUsuario("ana@email.com");
+        var dados = new DadosAtualizacaoUsuario("Ana", "inativo@email.com", "Senha@123");
+
+        given(repository.existsByEmailAndAtivoTrue("inativo@email.com")).willReturn(false);
+
+        assertThatCode(() -> validador.validar(usuario, dados)).doesNotThrowAnyException();
+    }
 }
 
 

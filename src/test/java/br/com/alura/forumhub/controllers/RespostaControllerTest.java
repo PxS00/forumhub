@@ -293,5 +293,63 @@ class RespostaControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Resposta não encontrada"));
     }
+
+    // =========================================================
+    // 401 — não autenticado
+    // =========================================================
+
+    @Test
+    @DisplayName("GET /respostas - deve retornar 401 quando não autenticado")
+    @org.springframework.security.test.context.support.WithAnonymousUser
+    void listar_semAutenticacao_deveRetornar401() throws Exception {
+        mockMvc.perform(get("/respostas"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("POST /respostas - deve retornar 401 quando não autenticado")
+    @org.springframework.security.test.context.support.WithAnonymousUser
+    void cadastrar_semAutenticacao_deveRetornar401() throws Exception {
+        var dadosEntrada = new DadosCadastroResposta("Mensagem", 1L, 1L);
+
+        mockMvc.perform(post("/respostas")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dadosEntrada)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // =========================================================
+    // 403 — autorização em nível de serviço (não-autor, não-admin)
+    // =========================================================
+
+    @Test
+    @DisplayName("PUT /respostas/{id} - deve retornar 400 quando usuário autenticado não é autor nem admin")
+    @WithMockUser(roles = "USER")
+    void atualizar_usuarioNaoEhAutorNemAdmin_deveRetornar400() throws Exception {
+        var dadosEntrada = new DadosAtualizacaoResposta("Mensagem");
+
+        given(service.atualizar(eq(1L), any()))
+                .willThrow(new ValidacaoException("Usuário não autorizado"));
+
+        mockMvc.perform(put("/respostas/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dadosEntrada)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Usuário não autorizado"));
+    }
+
+    @Test
+    @DisplayName("DELETE /respostas/{id} - deve retornar 400 quando usuário autenticado não é autor nem admin")
+    @WithMockUser(roles = "USER")
+    void excluir_usuarioNaoEhAutorNemAdmin_deveRetornar400() throws Exception {
+        willThrow(new ValidacaoException("Usuário não autorizado"))
+                .given(service).excluir(1L);
+
+        mockMvc.perform(delete("/respostas/1").with(csrf()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Usuário não autorizado"));
+    }
 }
 

@@ -264,5 +264,75 @@ class UsuarioControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Usuário não autorizado"));
     }
+
+    // =========================================================
+    // 401 — não autenticado
+    // =========================================================
+
+    @Test
+    @DisplayName("GET /usuario - deve retornar 401 quando não autenticado")
+    @org.springframework.security.test.context.support.WithAnonymousUser
+    void listar_semAutenticacao_deveRetornar401() throws Exception {
+        mockMvc.perform(get("/usuario"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("POST /usuario - deve retornar 401 quando não autenticado")
+    @org.springframework.security.test.context.support.WithAnonymousUser
+    void cadastrar_semAutenticacao_deveRetornar401() throws Exception {
+        var dadosEntrada = new DadosCadastroUsuario("Ana Silva", "ana@email.com", "Senha@123");
+
+        mockMvc.perform(post("/usuario")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dadosEntrada)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // =========================================================
+    // 403 — acesso a endpoint ADMIN com role USER
+    // =========================================================
+
+    @Test
+    @DisplayName("GET /usuario/listar-todos - deve retornar 403 para usuário sem role ADMIN")
+    @WithMockUser(roles = "USER")
+    void listarTodos_semRoleAdmin_deveRetornar403() throws Exception {
+        mockMvc.perform(get("/usuario/listar-todos"))
+                .andExpect(status().isForbidden());
+    }
+
+    // =========================================================
+    // 403 — autorização em nível de serviço (usuário tentando alterar outro usuário)
+    // =========================================================
+
+    @Test
+    @DisplayName("PUT /usuario/{id} - deve retornar 400 quando usuário tenta atualizar outro usuário")
+    @WithMockUser(roles = "USER")
+    void atualizar_usuarioTentaAtualizarOutroUsuario_deveRetornar400() throws Exception {
+        var dadosEntrada = new DadosAtualizacaoUsuario("Nome", "email@test.com", "Senha@123");
+
+        given(service.atualizar(eq(2L), any()))
+                .willThrow(new ValidacaoException("Usuário não autorizado"));
+
+        mockMvc.perform(put("/usuario/2")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dadosEntrada)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Usuário não autorizado"));
+    }
+
+    @Test
+    @DisplayName("DELETE /usuario/{id} - deve retornar 400 quando usuário tenta deletar outro usuário")
+    @WithMockUser(roles = "USER")
+    void remover_usuarioTentaDeletarOutroUsuario_deveRetornar400() throws Exception {
+        willThrow(new ValidacaoException("Usuário não autorizado"))
+                .given(service).deletar(2L);
+
+        mockMvc.perform(delete("/usuario/2").with(csrf()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Usuário não autorizado"));
+    }
 }
 

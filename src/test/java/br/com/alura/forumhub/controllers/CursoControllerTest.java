@@ -244,6 +244,31 @@ class CursoControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Curso não encontrado"));
     }
+
+    // =========================================================
+    // 401 — não autenticado
+    // =========================================================
+
+    @Test
+    @DisplayName("GET /cursos - deve retornar 401 quando não autenticado")
+    @org.springframework.security.test.context.support.WithAnonymousUser
+    void listar_semAutenticacao_deveRetornar401() throws Exception {
+        mockMvc.perform(get("/cursos"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("POST /cursos - deve retornar 401 quando não autenticado")
+    @org.springframework.security.test.context.support.WithAnonymousUser
+    void cadastrar_semAutenticacao_deveRetornar401() throws Exception {
+        var dadosEntrada = new DadosCadastroCurso("Spring Boot", "Programação");
+
+        mockMvc.perform(post("/cursos")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dadosEntrada)))
+                .andExpect(status().isUnauthorized());
+    }
 }
 
 

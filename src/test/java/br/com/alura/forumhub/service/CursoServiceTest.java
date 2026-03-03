@@ -206,7 +206,6 @@ class CursoServiceTest {
     void atualizar_nomeJaExiste_deveLancarValidacaoException() {
         var dados = new DadosAtualizacaoCurso("Spring Boot", "Programação");
 
-        given(cursoRepository.findById(1L)).willReturn(Optional.of(cursoFake));
         willThrow(new ValidacaoException("Curso já existe")).given(validadorAtualizacao).validar(1L, dados);
 
         assertThatThrownBy(() -> service.atualizar(1L, dados))

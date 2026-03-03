@@ -1,8 +1,8 @@
 package br.com.alura.forumhub.controllers;
 
+import br.com.alura.forumhub.dto.topico.DadosAtualizacaoTopico;
 import br.com.alura.forumhub.dto.topico.DadosCadastroTopico;
 import br.com.alura.forumhub.dto.topico.DadosDetalhamentoTopico;
-import br.com.alura.forumhub.dto.topico.DadosAtualizacaoTopico;
 import br.com.alura.forumhub.dto.topico.DadosListagemTopico;
 import br.com.alura.forumhub.exception.TopicoDuplicadoException;
 import br.com.alura.forumhub.model.StatusTopico;
@@ -22,13 +22,13 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -345,5 +345,63 @@ class TopicoControllerTest {
         mockMvc.perform(delete("/topicos/999").with(csrf()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Tópico não encontrado"));
+    }
+
+    // =========================================================
+    // 401 — não autenticado
+    // =========================================================
+
+    @Test
+    @DisplayName("GET /topicos - deve retornar 401 quando não autenticado")
+    @org.springframework.security.test.context.support.WithAnonymousUser
+    void listar_semAutenticacao_deveRetornar401() throws Exception {
+        mockMvc.perform(get("/topicos"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("POST /topicos - deve retornar 401 quando não autenticado")
+    @org.springframework.security.test.context.support.WithAnonymousUser
+    void cadastrar_semAutenticacao_deveRetornar401() throws Exception {
+        var dadosEntrada = new DadosCadastroTopico("Título", "Mensagem", 1L, 1L);
+
+        mockMvc.perform(post("/topicos")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dadosEntrada)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // =========================================================
+    // 403 — autorização em nível de serviço (não-autor, não-admin)
+    // =========================================================
+
+    @Test
+    @DisplayName("PUT /topicos/{id} - deve retornar 400 quando usuário autenticado não é autor nem admin")
+    @WithMockUser(roles = "USER")
+    void atualizar_usuarioNaoEhAutorNemAdmin_deveRetornar400() throws Exception {
+        var dadosEntrada = new DadosAtualizacaoTopico("Título", "Mensagem", 1L);
+
+        given(service.atualizar(eq(1L), any()))
+                .willThrow(new br.com.alura.forumhub.exception.ValidacaoException("Usuário não autorizado"));
+
+        mockMvc.perform(put("/topicos/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dadosEntrada)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Usuário não autorizado"));
+    }
+
+    @Test
+    @DisplayName("DELETE /topicos/{id} - deve retornar 400 quando usuário autenticado não é autor nem admin")
+    @WithMockUser(roles = "USER")
+    void remover_usuarioNaoEhAutorNemAdmin_deveRetornar400() throws Exception {
+        willThrow(new br.com.alura.forumhub.exception.ValidacaoException("Usuário não autorizado"))
+                .given(service).deletar(1L);
+
+        mockMvc.perform(delete("/topicos/1").with(csrf()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Usuário não autorizado"));
     }
 }
