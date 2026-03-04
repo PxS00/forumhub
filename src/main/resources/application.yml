@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: forumhub
+
+  datasource:
+    url: ${FORUMHUB_DB_URL}
+    username: ${MYSQL_DB_USER}
+    password: ${MYSQL_DB_PASS}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  error:
+    include-stacktrace: never
+
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET:1234567890abcdef1234567890abcdef}
+      expiration: ${JWT_EXPIRATION:86400000}
