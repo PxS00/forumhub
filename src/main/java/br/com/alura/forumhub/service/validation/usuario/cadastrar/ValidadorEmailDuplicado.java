@@ -3,14 +3,16 @@ package br.com.alura.forumhub.service.validation.usuario.cadastrar;
 import br.com.alura.forumhub.dto.usuario.DadosCadastroUsuario;
 import br.com.alura.forumhub.exception.ValidacaoException;
 import br.com.alura.forumhub.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ValidadorEmailDuplicado implements ValidationCadastroUsuario {
 
-    @Autowired
-    UsuarioRepository repository;
+    private final UsuarioRepository repository;
+
+    public ValidadorEmailDuplicado(UsuarioRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public void validar(DadosCadastroUsuario dados) {

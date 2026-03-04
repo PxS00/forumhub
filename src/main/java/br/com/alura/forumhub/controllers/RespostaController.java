@@ -6,7 +6,6 @@ import br.com.alura.forumhub.dto.resposta.DadosDetalhamentoResposta;
 import br.com.alura.forumhub.dto.resposta.DadosListagemResposta;
 import br.com.alura.forumhub.service.RespostaService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,8 +18,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping("/respostas")
 public class RespostaController {
 
-    @Autowired
-    private RespostaService service;
+    private final RespostaService service;
+
+    public RespostaController(RespostaService service) {
+        this.service = service;
+    }
 
     @PostMapping
     public ResponseEntity<DadosDetalhamentoResposta> cadastro(@RequestBody @Valid DadosCadastroResposta dados, UriComponentsBuilder uriBuilder) {

@@ -5,7 +5,6 @@ import br.com.alura.forumhub.dto.security.DadosTokenJWT;
 import br.com.alura.forumhub.model.Usuario;
 import br.com.alura.forumhub.security.TokenService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,11 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/login")
 public class AutenticacaoController {
 
-    @Autowired
-    private AuthenticationManager manager;
+    private final AuthenticationManager manager;
+    private final TokenService tokenService;
 
-    @Autowired
-    private TokenService tokenService;
+    public AutenticacaoController(AuthenticationManager manager, TokenService tokenService) {
+        this.manager = manager;
+        this.tokenService = tokenService;
+    }
 
     @PostMapping
     public ResponseEntity<DadosTokenJWT> login(@RequestBody @Valid DadosAutenticacao dados) {

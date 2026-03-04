@@ -5,14 +5,16 @@ import br.com.alura.forumhub.exception.ValidacaoException;
 import br.com.alura.forumhub.model.StatusTopico;
 import br.com.alura.forumhub.model.Topico;
 import br.com.alura.forumhub.repository.TopicoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ValidadorTopicoFechado implements ValidationCadastrarResposta {
 
-    @Autowired
-    private TopicoRepository repository;
+    private final TopicoRepository repository;
+
+    public ValidadorTopicoFechado(TopicoRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public void validar(DadosCadastroResposta dados) {

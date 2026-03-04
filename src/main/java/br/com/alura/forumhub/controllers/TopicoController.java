@@ -6,7 +6,6 @@ import br.com.alura.forumhub.dto.topico.DadosDetalhamentoTopico;
 import br.com.alura.forumhub.dto.topico.DadosListagemTopico;
 import br.com.alura.forumhub.service.TopicoService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,8 +18,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping("/topicos")
 public class TopicoController {
 
-    @Autowired
-    private TopicoService service;
+    private final TopicoService service;
+
+    public TopicoController(TopicoService service) {
+        this.service = service;
+    }
 
     @PostMapping
     public ResponseEntity<DadosDetalhamentoTopico> cadastro(@RequestBody @Valid DadosCadastroTopico dados, UriComponentsBuilder uriBuilder) {

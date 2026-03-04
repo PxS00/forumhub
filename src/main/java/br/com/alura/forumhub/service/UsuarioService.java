@@ -14,7 +14,6 @@ import br.com.alura.forumhub.service.validation.usuario.atualizar.ValidationAtua
 import br.com.alura.forumhub.service.validation.usuario.cadastrar.ValidationCadastroUsuario;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,23 +26,26 @@ import java.util.Optional;
 @Service
 public class UsuarioService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final PerfilRepository perfilRepository;
+    private final List<ValidationAtualizacaoUsuario> validationAtualizacaoUsuarios;
+    private final List<ValidationCadastroUsuario> validationCadastroUsuario;
+    private final AutorizacaoService autorizacaoService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    PerfilRepository perfilRepository;
-
-    @Autowired
-    private List<ValidationAtualizacaoUsuario> validationAtualizacaoUsuarios;
-
-    @Autowired
-    private List<ValidationCadastroUsuario> validationCadastroUsuario;
-
-    @Autowired
-    private AutorizacaoService autorizacaoService;
+    public UsuarioService(UsuarioRepository usuarioRepository,
+                          PasswordEncoder passwordEncoder,
+                          PerfilRepository perfilRepository,
+                          List<ValidationAtualizacaoUsuario> validationAtualizacaoUsuarios,
+                          List<ValidationCadastroUsuario> validationCadastroUsuario,
+                          AutorizacaoService autorizacaoService) {
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.perfilRepository = perfilRepository;
+        this.validationAtualizacaoUsuarios = validationAtualizacaoUsuarios;
+        this.validationCadastroUsuario = validationCadastroUsuario;
+        this.autorizacaoService = autorizacaoService;
+    }
 
     private Usuario usuarioExiste(Long id) {
         return usuarioRepository.findById(id)

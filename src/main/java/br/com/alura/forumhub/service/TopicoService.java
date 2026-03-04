@@ -15,7 +15,6 @@ import br.com.alura.forumhub.service.validation.topico.atualizar.ValidationAtual
 import br.com.alura.forumhub.service.validation.topico.cadastrar.ValidationCadastrarTopico;
 import br.com.alura.forumhub.service.validation.topico.excluir.ValidationExcluirTopico;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,26 +25,29 @@ import java.util.List;
 @Service
 public class TopicoService {
 
-    @Autowired
-    private TopicoRepository topicoRepository;
+    private final TopicoRepository topicoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final CursoRepository cursoRepository;
+    private final List<ValidationCadastrarTopico> validationCadastrarTopico;
+    private final List<ValidationAtualizarTopico> validationAtualizarTopico;
+    private final ValidadorAutorExiste validadorAutorExiste;
+    private final List<ValidationExcluirTopico> validationExcluirTopico;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private CursoRepository cursoRepository;
-
-    @Autowired
-    private List<ValidationCadastrarTopico> validationCadastrarTopico;
-
-    @Autowired
-    private List<ValidationAtualizarTopico> validationAtualizarTopico;
-
-    @Autowired
-    private ValidadorAutorExiste validadorAutorExiste;
-
-    @Autowired
-    private List<ValidationExcluirTopico> validationExcluirTopico;
+    public TopicoService(TopicoRepository topicoRepository,
+                         UsuarioRepository usuarioRepository,
+                         CursoRepository cursoRepository,
+                         List<ValidationCadastrarTopico> validationCadastrarTopico,
+                         List<ValidationAtualizarTopico> validationAtualizarTopico,
+                         ValidadorAutorExiste validadorAutorExiste,
+                         List<ValidationExcluirTopico> validationExcluirTopico) {
+        this.topicoRepository = topicoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.cursoRepository = cursoRepository;
+        this.validationCadastrarTopico = validationCadastrarTopico;
+        this.validationAtualizarTopico = validationAtualizarTopico;
+        this.validadorAutorExiste = validadorAutorExiste;
+        this.validationExcluirTopico = validationExcluirTopico;
+    }
 
     private Topico topicoExiste(Long id){
         return topicoRepository.findById(id)

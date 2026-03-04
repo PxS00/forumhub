@@ -3,14 +3,16 @@ package br.com.alura.forumhub.service.validation.curso.atualizar;
 import br.com.alura.forumhub.dto.curso.DadosAtualizacaoCurso;
 import br.com.alura.forumhub.exception.ValidacaoException;
 import br.com.alura.forumhub.repository.CursoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ValidadorCursoDuplicadoAtualizacao implements ValidationAtualizacaoCurso {
 
-    @Autowired
-    private CursoRepository repository;
+    private final CursoRepository repository;
+
+    public ValidadorCursoDuplicadoAtualizacao(CursoRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public void validar(Long id, DadosAtualizacaoCurso dados) {

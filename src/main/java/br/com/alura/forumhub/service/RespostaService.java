@@ -15,7 +15,6 @@ import br.com.alura.forumhub.service.validation.resposta.atualizar.ValidationAtu
 import br.com.alura.forumhub.service.validation.resposta.cadastrar.ValidationCadastrarResposta;
 import br.com.alura.forumhub.service.validation.resposta.excluir.ValidationExcluirResposta;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,26 +25,29 @@ import java.util.List;
 @Service
 public class RespostaService {
 
-    @Autowired
-    private RespostaRepository respostaRepository;
+    private final RespostaRepository respostaRepository;
+    private final TopicoRepository topicoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final List<ValidationCadastrarResposta> validationCadastrarResposta;
+    private final List<ValidationAtualizarResposta> validationAtualizarResposta;
+    private final List<ValidationExcluirResposta> validationExcluirResposta;
+    private final ValidadorAutorExiste validadorAutorExiste;
 
-    @Autowired
-    private TopicoRepository topicoRepository;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private List<ValidationCadastrarResposta> validationCadastrarResposta;
-
-    @Autowired
-    private List<ValidationAtualizarResposta> validationAtualizarResposta;
-
-    @Autowired
-    private List<ValidationExcluirResposta> validationExcluirResposta;
-
-    @Autowired
-    private ValidadorAutorExiste validadorAutorExiste;
+    public RespostaService(RespostaRepository respostaRepository,
+                           TopicoRepository topicoRepository,
+                           UsuarioRepository usuarioRepository,
+                           List<ValidationCadastrarResposta> validationCadastrarResposta,
+                           List<ValidationAtualizarResposta> validationAtualizarResposta,
+                           List<ValidationExcluirResposta> validationExcluirResposta,
+                           ValidadorAutorExiste validadorAutorExiste) {
+        this.respostaRepository = respostaRepository;
+        this.topicoRepository = topicoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.validationCadastrarResposta = validationCadastrarResposta;
+        this.validationAtualizarResposta = validationAtualizarResposta;
+        this.validationExcluirResposta = validationExcluirResposta;
+        this.validadorAutorExiste = validadorAutorExiste;
+    }
 
 
     private Resposta respostaExiste(Long id) {

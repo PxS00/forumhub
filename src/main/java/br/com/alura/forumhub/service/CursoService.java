@@ -10,7 +10,6 @@ import br.com.alura.forumhub.service.validation.curso.atualizar.ValidationAtuali
 import br.com.alura.forumhub.service.validation.curso.cadastrar.ValidationCadastroCurso;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,14 +20,17 @@ import java.util.List;
 @Service
 public class CursoService {
 
-    @Autowired
-    private CursoRepository cursoRepository;
+    private final CursoRepository cursoRepository;
+    private final List<ValidationCadastroCurso> validationCadastroCursos;
+    private final List<ValidationAtualizacaoCurso> validationAtualizacaoCursos;
 
-    @Autowired
-    private List<ValidationCadastroCurso> validationCadastroCursos;
-
-    @Autowired
-    private List<ValidationAtualizacaoCurso> validationAtualizacaoCursos;
+    public CursoService(CursoRepository cursoRepository,
+                        List<ValidationCadastroCurso> validationCadastroCursos,
+                        List<ValidationAtualizacaoCurso> validationAtualizacaoCursos) {
+        this.cursoRepository = cursoRepository;
+        this.validationCadastroCursos = validationCadastroCursos;
+        this.validationAtualizacaoCursos = validationAtualizacaoCursos;
+    }
 
     private Curso cursoExiste(Long id) {
         return cursoRepository.findById(id)

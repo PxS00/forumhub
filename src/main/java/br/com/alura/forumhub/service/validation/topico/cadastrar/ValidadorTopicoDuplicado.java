@@ -3,14 +3,16 @@ package br.com.alura.forumhub.service.validation.topico.cadastrar;
 import br.com.alura.forumhub.dto.topico.DadosCadastroTopico;
 import br.com.alura.forumhub.exception.TopicoDuplicadoException;
 import br.com.alura.forumhub.repository.TopicoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ValidadorTopicoDuplicado implements ValidationCadastrarTopico {
 
-    @Autowired
-    private TopicoRepository repository;
+    private final TopicoRepository repository;
+
+    public ValidadorTopicoDuplicado(TopicoRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public void validar(DadosCadastroTopico dados) {

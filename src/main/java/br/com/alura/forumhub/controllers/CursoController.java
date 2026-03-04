@@ -6,7 +6,6 @@ import br.com.alura.forumhub.dto.curso.DadosDetalhamentoCurso;
 import br.com.alura.forumhub.dto.curso.DadosListagemCurso;
 import br.com.alura.forumhub.service.CursoService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,8 +18,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping("/cursos")
 public class CursoController {
 
-    @Autowired
-    private CursoService service;
+    private final CursoService service;
+
+    public CursoController(CursoService service) {
+        this.service = service;
+    }
 
     @PostMapping
     public ResponseEntity<DadosDetalhamentoCurso> cadastro(@RequestBody @Valid DadosCadastroCurso dados, UriComponentsBuilder uriBuilder) {

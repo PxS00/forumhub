@@ -4,14 +4,16 @@ import br.com.alura.forumhub.dto.topico.DadosAtualizacaoTopico;
 import br.com.alura.forumhub.exception.TopicoDuplicadoException;
 import br.com.alura.forumhub.model.Topico;
 import br.com.alura.forumhub.repository.TopicoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ValidadorDuplicidadeTopicoAoAtualizar implements ValidationAtualizarTopico {
 
-    @Autowired
-    private TopicoRepository repository;
+    private final TopicoRepository repository;
+
+    public ValidadorDuplicidadeTopicoAoAtualizar(TopicoRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public void validar(Topico topico, DadosAtualizacaoTopico dados) {
