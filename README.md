@@ -10,26 +10,40 @@
 ![MySQL](https://img.shields.io/badge/MySQL-8.x-blue)
 ![JWT](https://img.shields.io/badge/Auth-JWT-orange)
 ![Swagger](https://img.shields.io/badge/OpenAPI-Swagger-85EA2D)
+![Gradle](https://img.shields.io/badge/Build-Gradle-02303A)
 ![License](https://img.shields.io/badge/License-Educational-lightgrey)
 
-API REST para gerenciamento de um fórum educacional, desenvolvida com **Spring Boot 3** e autenticação via **JWT**.
+API REST para gerenciamento de um fórum educacional, desenvolvida com **Spring Boot 3**, build com **Gradle** e autenticação via **JWT**.
+
+---
+
+## ✨ Features
+
+- Autenticação JWT stateless
+- Controle de acesso por roles (Spring Security + `@PreAuthorize`)
+- Soft delete de usuários
+- Paginação e filtros em endpoints
+- Documentação automática com Swagger/OpenAPI
+- Migrations versionadas com Flyway
+- Testes automatizados com H2 em memória
 
 ---
 
 ## 🚀 Tecnologias
 
 | Tecnologia | Versão |
-|---|---|
-| Java | 17 |
+|---|--------|
+| Java | 17     |
 | Spring Boot | 3.5.11 |
-| Spring Security | 6.x |
-| Spring Data JPA | 3.x |
-| MySQL | 8.x |
-| Flyway | — |
-| Auth0 Java JWT | 4.5.0 |
-| Lombok | — |
-| SpringDoc OpenAPI (Swagger) | 2.8.15 |
-| H2 (testes) | — |
+| Spring Security | 6.x    |
+| Spring Data JPA | 3.x    |
+| MySQL | 8.x    |
+| Flyway | —      |
+| Auth0 Java JWT | 4.5.0  |
+| Lombok | —      |
+| SpringDoc OpenAPI (Swagger) | 2.8.16 |
+| H2 (testes) | —      |
+| Gradle | 8.14   |
 
 ---
 
@@ -70,7 +84,13 @@ Perfil  <──── usuarios_perfis ────> Usuario (ativo)
                                      Resposta
 ```
 
-As migrações do banco são gerenciadas pelo **Flyway** (diretório `src/main/resources/db/migration`).
+As migrações do banco são gerenciadas pelo **Flyway**, localizado em:
+
+```
+src/main/resources/db/migration
+```
+
+O schema do banco é versionado e atualizado automaticamente na inicialização da aplicação.
 
 ### 🟢 Soft Delete
 
@@ -208,6 +228,69 @@ Configure as seguintes variáveis de ambiente antes de iniciar a aplicação:
 
 ---
 
+## 🗃️ Arquivos de Configuração YAML
+
+O projeto utiliza dois perfis de configuração localizados em `src/main/resources/`:
+
+### `application.yml` — Produção / Desenvolvimento
+
+```yaml
+spring:
+  datasource:
+    url: ${FORUMHUB_DB_URL}
+    username: ${MYSQL_DB_USER}
+    password: ${MYSQL_DB_PASS}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+server:
+  error:
+    include-stacktrace: never
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET:1234567890abcdef1234567890abcdef}
+      expiration: ${JWT_EXPIRATION:86400000}
+```
+
+- O banco de dados e as credenciais são injetados via variáveis de ambiente.
+- O Hibernate usa `ddl-auto: validate` — o schema é gerenciado exclusivamente pelo **Flyway**.
+- Stack traces não são expostos nas respostas de erro.
+
+### `application-test.yml` — Testes Automatizados
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL;NON_KEYWORDS=VALUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  flyway:
+    enabled: false
+api:
+  security:
+    token:
+      secret: test-secret-key-1234567890abcdef1234
+      expiration: 86400000
+```
+
+- Utiliza banco **H2 em memória** com compatibilidade MySQL.
+- O **Flyway é desabilitado** — o schema é criado/destruído pelo próprio Hibernate a cada execução.
+- Perfil ativado automaticamente pelas classes de teste via `@ActiveProfiles("test")`.
+
+---
+
 ## 📌 Status Codes
 
 | Código | Quando ocorre                                   |
@@ -221,12 +304,46 @@ Configure as seguintes variáveis de ambiente antes de iniciar a aplicação:
 
 ---
 
+## 🔨 Build — Gradle
+
+O projeto utiliza **Gradle** como ferramenta de build, com o wrapper `gradlew` incluso (não é necessário instalar o Gradle globalmente).
+
+### Principais tarefas
+
+| Comando | Descrição |
+|---------|-----------|
+| `./gradlew bootRun` | Inicia a aplicação em modo desenvolvimento |
+| `./gradlew build` | Compila, testa e gera o JAR em `build/libs/` |
+| `./gradlew clean build -x test` | Gera o JAR sem executar os testes |
+| `./gradlew test` | Executa apenas os testes |
+| `./gradlew dependencies` | Exibe a árvore de dependências |
+
+### Dependências principais (`build.gradle`)
+
+| Dependência | Escopo |
+|---|---|
+| `spring-boot-starter-web` | `implementation` |
+| `spring-boot-starter-data-jpa` | `implementation` |
+| `spring-boot-starter-security` | `implementation` |
+| `spring-boot-starter-validation` | `implementation` |
+| `flyway-core` + `flyway-mysql` | `implementation` |
+| `springdoc-openapi-starter-webmvc-ui:2.8.16` | `implementation` |
+| `java-jwt:4.5.0` | `implementation` |
+| `lombok` | `compileOnly` + `annotationProcessor` |
+| `spring-boot-devtools` | `developmentOnly` |
+| `mysql-connector-j` | `runtimeOnly` |
+| `h2` | `runtimeOnly` |
+| `spring-boot-starter-test` | `testImplementation` |
+| `spring-security-test` | `testImplementation` |
+
+---
+
 ## 🏃 Como executar
 
 ### Pré-requisitos
 
 - Java 17+
-- Maven 3.8+
+- Gradle 8+ (ou use o wrapper `./gradlew` incluso no projeto)
 - MySQL 8+
 
 ### Passos
@@ -246,13 +363,13 @@ Configure as seguintes variáveis de ambiente antes de iniciar a aplicação:
 
 4. **Execute a aplicação:**
    ```bash
-   ./mvnw spring-boot:run
+   ./gradlew bootRun
    ```
 
    Ou gere o `.jar` e execute:
    ```bash
-   ./mvnw clean package -DskipTests
-   java -jar target/forumhub-1.0.0.jar
+   ./gradlew clean build -x test
+   java -jar build/libs/forumhub-2.0.0.jar
    ```
 
 5. A API estará disponível em `http://localhost:8080`.
@@ -264,7 +381,7 @@ Configure as seguintes variáveis de ambiente antes de iniciar a aplicação:
 Após iniciar a aplicação, acesse:
 
 ```
-http://localhost:8080/swagger-ui.html
+http://localhost:8080/swagger-ui/index.html
 ```
 
 A documentação OpenAPI em formato JSON está disponível em:
@@ -280,10 +397,10 @@ http://localhost:8080/v3/api-docs
 O projeto utiliza **JUnit 5**, **Spring Boot Test**, **Spring Security Test** e banco **H2 em memória** para os testes.
 
 ```bash
-./mvnw test
+./gradlew test
 ```
 
-Os relatórios são gerados em `target/surefire-reports/`.
+Os relatórios são gerados em `build/reports/tests/test/`.
 
 ### Cobertura de testes
 
